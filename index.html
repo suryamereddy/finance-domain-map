@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finance Domain Map — Werner Freight Estate</title>
+<meta name="description" content="Interactive map of the Werner finance domain: 18 apps, flows, rules, and the V2 rebuild coverage.">
+<style>:root{color-scheme:dark}html,body{margin:0;padding:0}img{max-width:100%}</style>
+</head>
+<body>
+<style>
+:root{
+  --bg:#0a0d14; --bg2:#0f1420; --panel:#141b2b; --panel2:#1b2436; --line:#232f45; --line2:#2e3b56;
+  --ink:#eef2f9; --ink2:#aab6cc; --ink3:#6c7a95;
+  --gold:#e3a94e; --gold2:#f0c074; --cyan:#48d6e8; --cyan2:#8ce9f4; --violet:#8b7ff0;
+  --good:#3ad29f; --good-bg:#123026; --warn:#e8b74e; --warn-bg:#332811; --crit:# f0664f;
+  --crit:#f0664f; --crit-bg:#3a1712; --info:#5aa9e6;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --disp:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001s!important}}
+a{color:var(--gold2);text-decoration:none}
+code,.mono{font-family:var(--mono);font-size:.85em}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;padding:12px clamp(16px,4vw,44px);background:rgba(10,13,20,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--disp);font-weight:600;font-size:1.12rem;letter-spacing:.2px;color:#fff;white-space:nowrap}
+.logo b{color:var(--gold)}
+.topnav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.topnav a{padding:6px 11px;border-radius:8px;color:var(--ink2);font-size:.82rem;font-weight:500}
+.topnav a:hover{background:var(--panel2);color:#fff}
+.topnav a.active{background:var(--gold);color:#0a0d14}
+.tsearch{padding:7px 12px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);font-size:.85rem;width:170px}
+.tsearch:focus{outline:2px solid var(--gold);width:220px}
+@media(max-width:820px){.topnav{display:none}.tsearch{width:120px}}
+
+/* hero — full-screen live map */
+.hero{position:relative;height:calc(100vh - 53px);min-height:480px;border-bottom:1px solid var(--line);overflow:hidden}
+#net{position:absolute;inset:0;width:100%;height:100%;display:block}
+.herobadge{position:absolute;z-index:3;top:18px;left:clamp(16px,4vw,44px);display:inline-flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--cyan2);border:1px solid var(--line2);background:rgba(20,27,43,.72);padding:6px 13px;border-radius:20px;font-weight:600;pointer-events:none;max-width:calc(100% - 30px)}
+.maplegend{position:absolute;z-index:3;bottom:22px;left:clamp(16px,4vw,44px);display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:.74rem;color:var(--ink2);pointer-events:none;background:rgba(20,27,43,.78);border:1px solid var(--line2);border-radius:22px;padding:9px 17px}
+.maplegend span{display:inline-flex;align-items:center;gap:7px}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan2);border:1px solid var(--line2);background:rgba(20,27,43,.6);padding:5px 12px;border-radius:20px;font-weight:600}
+.badge .pulse{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(72,214,232,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(72,214,232,.5)}70%{box-shadow:0 0 0 9px rgba(72,214,232,0)}100%{box-shadow:0 0 0 0 rgba(72,214,232,0)}}
+h1{font-family:var(--disp);font-weight:600;font-size:clamp(2.3rem,5.4vw,4rem);line-height:1.02;margin:.4em 0 .3em;letter-spacing:-.015em;color:#fff;text-wrap:balance}
+h1 em{font-style:normal;color:var(--gold)}
+.sub{font-size:clamp(1rem,1.6vw,1.22rem);color:var(--ink2);max-width:60ch}
+.herohint{position:absolute;z-index:2;bottom:0;left:0;right:0;margin:0;padding:34px clamp(16px,4vw,44px) 16px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:.78rem;color:var(--ink3);pointer-events:none;background:linear-gradient(0deg,var(--bg) 28%,transparent)}
+.herohint b{color:var(--gold2);font-family:var(--disp);font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}
+.herohint .stat{display:flex;flex-direction:column;line-height:1.15}
+.legendrow{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto}
+.legendrow span{display:inline-flex;align-items:center;gap:6px}
+.ld{width:10px;height:10px;border-radius:3px}
+
+/* node detail popover */
+#nodeinfo{position:absolute;z-index:5;max-width:260px;background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;box-shadow:0 20px 50px rgba(0,0,0,.55);pointer-events:none;opacity:0;transition:opacity .15s;font-size:.84rem}
+#nodeinfo.on{opacity:1}
+#nodeinfo h5{margin:0 0 3px;font-size:.95rem;color:#fff}
+#nodeinfo .tag{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan2)}
+#nodeinfo p{margin:6px 0 0;color:var(--ink2);font-size:.82rem}
+.maptoggle{position:absolute;z-index:4;top:18px;right:clamp(16px,4vw,44px);display:flex;background:var(--panel);border:1px solid var(--line2);border-radius:10px;overflow:hidden;pointer-events:auto}
+.mt{background:transparent;border:none;color:var(--ink2);font-size:.78rem;font-weight:600;padding:8px 15px;cursor:pointer;font-family:var(--sans)}
+.mt.on{background:var(--gold);color:#0a0d14}
+.covlegend{position:absolute;z-index:4;top:60px;right:clamp(16px,4vw,44px);display:none;gap:14px;background:rgba(20,27,43,.72);border:1px solid var(--line2);border-radius:9px;padding:7px 12px;font-size:.72rem;color:var(--ink2);pointer-events:none}
+.covlegend.on{display:flex}
+.covlegend span{display:inline-flex;align-items:center;gap:6px}
+.covlegend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* sections */
+main{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
+section{padding:64px 0;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+h2{font-family:var(--disp);font-weight:600;font-size:clamp(1.7rem,3vw,2.4rem);margin:.25em 0 .1em;color:#fff;letter-spacing:-.01em;text-wrap:balance}
+.lead{color:var(--ink2);max-width:74ch;font-size:1.05rem;margin:.5em 0 1.6em}
+h3{font-size:1.05rem;color:#fff;margin:26px 0 12px;font-weight:700}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:18px 20px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--line2);transform:translateY(-2px)}
+.card h4{margin:0 0 5px;font-size:1.02rem;color:#fff}
+.card .meta{font-size:.76rem;color:var(--gold2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.card p{font-size:.9rem;color:var(--ink2);margin:.35em 0}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.c-built{background:var(--good-bg);color:var(--good)} .c-partial{background:var(--warn-bg);color:var(--warn)}
+.c-none{background:var(--crit-bg);color:var(--crit)} .c-planned{background:#1a2440;color:var(--info)}
+.c-navy{background:#1a2440;color:var(--cyan2)} .c-gold{background:#332811;color:var(--gold2)}
+
+/* coverage matrix */
+.cov-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.cbtn{padding:7px 13px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink2);font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px}
+.cbtn .d{width:9px;height:9px;border-radius:50%}
+.cbtn.on{background:var(--panel2);color:#fff;border-color:var(--gold)}
+.covgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.cov{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:12px;padding:13px 15px;transition:.2s}
+.cov.built{border-left-color:var(--good)} .cov.partial{border-left-color:var(--warn)}
+.cov.none{border-left-color:var(--crit)} .cov.planned{border-left-color:var(--info)}
+.cov h4{margin:0 0 6px;font-size:.94rem;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cov p{margin:0;font-size:.8rem;color:var(--ink3)}
+.cov .v2{font-size:.78rem;color:var(--ink2);margin-top:6px}
+.cov .v2 b{color:var(--ink)}
+.covbar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin:2px 0 20px;border:1px solid var(--line)}
+.covbar span{display:block}
+
+/* expandable */
+details.x{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
+details.x>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;gap:12px;align-items:center;font-weight:600;color:#fff}
+details.x>summary::-webkit-details-marker{display:none}
+details.x>summary .tw{margin-left:auto;color:var(--gold);font-size:1.2rem;transition:transform .2s;flex:none}
+details.x[open]>summary .tw{transform:rotate(45deg)}
+details.x>summary .lbl{font-family:var(--mono);font-size:.66rem;padding:3px 8px;border-radius:6px;background:var(--bg2);color:var(--ink3);flex:none}
+details.x .body{padding:2px 18px 18px;border-top:1px solid var(--line);color:var(--ink2);font-size:.92rem}
+details.x .body ul{padding-left:1.15em;margin:.5em 0}
+details.x .body li{margin:.3em 0}
+details.x .body code{background:var(--bg2);padding:.1em .4em;border-radius:5px;color:var(--cyan2)}
+.flow{display:flex;overflow-x:auto;gap:0;padding:8px 0 14px}
+.fn{flex:none;min-width:112px;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
+.fn .ft{font-size:.8rem;font-weight:700;color:#fff}
+.fn .fs{font-size:.66rem;color:var(--ink3);font-family:var(--mono)}
+.fn.src{border-color:var(--cyan)} .fn.sink{border-color:var(--gold)}
+.far{align-self:center;color:var(--gold);padding:0 4px;flex:none}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:6px 0 6px 32px;border-left:1px solid var(--line2);margin-left:9px}
+.steps li::before{content:counter(s);position:absolute;left:-12px;top:5px;width:23px;height:23px;border-radius:50%;background:var(--panel2);border:1px solid var(--gold);color:var(--gold2);font-size:.7rem;font-weight:700;display:grid;place-items:center;font-family:var(--mono)}
+.note{border-left:2px solid var(--gold);background:rgba(227,169,78,.07);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:.88rem;color:var(--gold2)}
+.note.crit{border-color:var(--crit);background:rgba(240,102,79,.08);color:#f4a291}
+.src{font-size:.7rem;color:var(--ink3);font-family:var(--mono)}
+.tw-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg2);color:var(--ink2);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+tbody tr:hover{background:var(--panel2)}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.fbar input{flex:1;min-width:180px;padding:9px 13px;border:1px solid var(--line2);border-radius:9px;background:var(--bg2);color:var(--ink);font-size:.88rem}
+.pill{font-family:var(--mono);font-size:.72rem;padding:4px 10px;border-radius:7px;background:var(--bg2);border:1px solid var(--line2);cursor:pointer;color:var(--ink2)}
+.pill.on{background:var(--gold);color:#0a0d14;border-color:var(--gold)}
+.hidden{display:none!important}
+.foot{padding:50px 0 40px;color:var(--ink3);font-size:.8rem;max-width:80ch}
+mark{background:rgba(227,169,78,.28);color:#fff;border-radius:3px;padding:0 2px}
+</style>
+
+<div class="top">
+  <div class="logo">Finance Domain <b>Map</b></div>
+  <nav class="topnav" id="topnav"></nav>
+  <input id="q" class="tsearch" type="search" placeholder="Search…" aria-label="Search">
+</div>
+
+<header class="hero">
+  <canvas id="net"></canvas>
+  <div class="herobadge"><span class="pulse"></span>Werner freight estate · 18 apps · hover a node, click to inspect</div>
+  <div id="nodeinfo"></div>
+  <div class="maptoggle" id="maptoggle"><button class="mt on" data-m="cur">Current estate</button><button class="mt" data-m="v2">V2 coverage</button></div>
+  <div class="covlegend" id="covlegend"><span><i style="background:#3ad29f"></i>built in V2</span><span><i style="background:#e8b74e"></i>partial</span><span><i style="background:#f0664f"></i>no V2 equivalent</span></div>
+  <div class="maplegend">
+    <span><i class="ld" style="background:var(--cyan)"></i>source</span>
+    <span><i class="ld" style="background:var(--gold)"></i>Werner app / engine</span>
+    <span><i class="ld" style="background:var(--violet)"></i>destination</span>
+  </div>
+</header>
+
+<main id="content"></main>
+<div class="foot" id="foot"></div>
+
+<script>
+/* ============ NETWORK MAP ============ */
+const NODES=[
+ // col 0 sources
+ {id:"mm",l:"MasterMind",c:0,t:"src",d:"The TMS. Source of truth for orders, routes, invoices, vouchers."},
+ {id:"as400",l:"AS400 / iSeries",c:0,t:"src",d:"Legacy trip/split revenue, credit & bank files (jt400 RPG calls)."},
+ {id:"psoft",l:"PeopleSoft",c:0,t:"src",d:"Legacy ERP still fed billing/PO staging via TPA."},
+ {id:"sf",l:"Salesforce / CCSF",c:0,t:"src",d:"Customer master feed + work orders."},
+ {id:"mkt",l:"Greenscreens / DAT",c:0,t:"src",d:"Market rate feeds powering freight pricing."},
+ {id:"xig",l:"Xignite",c:0,t:"src",d:"Real-time FX rates."},
+ // col 1 werner
+ {id:"ar",l:"AR — app-accounting",c:1,t:"app",d:"Customer invoicing hub; incident engine; alert channels."},
+ {id:"ap",l:"AP — accounting-payable",c:1,t:"app",d:"Carrier voucher 19-state machine."},
+ {id:"ven",l:"Vendor — app-finance",c:1,t:"app",d:"Supplier creation into Workday (mostly disabled)."},
+ {id:"bre",l:"BRE — allocation + routing",c:1,t:"eng",d:"Revenue/cost allocation + EDI routing engines."},
+ {id:"price",l:"Freight pricing engine",c:1,t:"eng",d:"Buy/sell rate quoting from market data — dormant."},
+ {id:"recon",l:"Reconciliation",c:1,t:"eng",d:"AS400 ↔ MasterMind revenue reconciliation (Mule)."},
+ {id:"mds",l:"mastery-datasync",c:1,t:"app",d:"MM↔PeopleSoft sync, external-flip, transform API, rule data."},
+ {id:"mule",l:"MuleSoft tier",c:1,t:"app",d:"10 apps: FX, assets, bank files, bridging, reconciliation."},
+ // col 2 sinks
+ {id:"wd",l:"Workday",c:2,t:"sink",d:"Strategic ERP — invoices, AP, suppliers, FX, assets."},
+ {id:"plq",l:"PartnerLinQ",c:2,t:"sink",d:"EDI-210 to customers."},
+ {id:"esk",l:"Esker",c:2,t:"sink",d:"AR / cash-collection SaaS (daily CSV)."},
+ {id:"snow",l:"Snowflake",c:2,t:"sink",d:"Analytics warehouse."},
+ {id:"tpay",l:"TriumphPay",c:2,t:"sink",d:"Carrier payment platform."},
+ {id:"bank",l:"Banks · BMO/GXS",c:2,t:"sink",d:"Positive-pay, disbursement & returns files."}
+];
+const EDGES=[
+ ["mm","ar"],["mm","ap"],["mm","mds"],["mm","ven"],
+ ["as400","recon"],["as400","bre"],["psoft","mule"],["psoft","mds"],
+ ["sf","ar"],["sf","mule"],["mkt","price"],["xig","mule"],
+ ["ar","bre"],["ap","bre"],["ap","ven"],["bre","ar"],["bre","ap"],
+ ["ar","wd"],["ar","plq"],["ar","esk"],["ar","snow"],
+ ["ap","wd"],["ven","wd"],["ap","tpay"],
+ ["recon","as400"],["mds","psoft"],["mule","wd"],["mule","bank"],["mule","psoft"]
+];
+const NT={src:"#48d6e8",app:"#e3a94e",eng:"#f0c074",sink:"#8b7ff0"};
+const COVMAP={mm:"built",as400:"partial",psoft:"none",sf:"none",mkt:"none",xig:"none",ar:"built",ap:"built",ven:"built",bre:"built",price:"none",recon:"none",mds:"partial",mule:"none",wd:"built",plq:"partial",esk:"partial",snow:"partial",tpay:"partial",bank:"none"};
+const COVCOL={built:"#3ad29f",partial:"#e8b74e",none:"#f0664f",planned:"#5aa9e6"};
+let v2mode=false;
+const cv=document.getElementById("net"),ctx=cv.getContext("2d"),info=document.getElementById("nodeinfo");
+let W,H,DPR,pos={},parts=[],hover=null,sel=null,reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+function layout(){
+  DPR=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;
+  cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+  const cols=[0,1,2],colX=[W*0.13,W*0.5,W*0.87];
+  cols.forEach(c=>{const ns=NODES.filter(n=>n.c===c);const top=H*0.15,bot=H*0.84,step=(bot-top)/Math.max(ns.length-1,1);
+    ns.forEach((n,i)=>{pos[n.id]={x:colX[c],y:ns.length===1?(top+bot)/2:top+i*step}})});
+  parts=[];EDGES.forEach((e,i)=>{const dormant=(e[0]==="mkt"||e[1]==="price");const n=dormant?1:2;
+    for(let k=0;k<n;k++)parts.push({e:i,t:(k/n)+Math.sin(i*13.7)*0.1,sp:0.0016+((i*7)%5)*0.0004,dormant})});
+}
+function nodeAt(mx,my){for(const n of NODES){const p=pos[n.id];
+  if(Math.hypot(mx-p.x,my-p.y)<24)return n;
+  const w=n.l.length*6.7+12,ly=(n.c===1?p.y-16:p.y+4);let lx0,lx1;
+  if(n.c===2){lx1=p.x-13;lx0=lx1-w}else if(n.c===0){lx0=p.x+13;lx1=lx0+w}else{lx0=p.x-w/2;lx1=p.x+w/2}
+  if(mx>=lx0&&mx<=lx1&&my>=ly-14&&my<=ly+7)return n}
+  return null}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const active=sel||hover;
+  const lit=new Set();if(active){lit.add(active.id);EDGES.forEach(e=>{if(e[0]===active.id)lit.add(e[1]);if(e[1]===active.id)lit.add(e[0])})}
+  // edges
+  EDGES.forEach((e,i)=>{const a=pos[e[0]],b=pos[e[1]];const dormant=(e[0]==="mkt"||e[1]==="price")||(v2mode&&(COVMAP[e[0]]==="none"||COVMAP[e[1]]==="none"));
+    const on=active&&(e[0]===active.id||e[1]===active.id);
+    const mx=(a.x+b.x)/2;
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.bezierCurveTo(mx,a.y,mx,b.y,b.x,b.y);
+    ctx.strokeStyle=on?"rgba(227,169,78,.55)":dormant?"rgba(120,130,150,.10)":active?"rgba(90,105,135,.10)":"rgba(90,105,135,.22)";
+    ctx.lineWidth=on?1.6:1;ctx.stroke()});
+  // particles
+  parts.forEach(pt=>{const e=EDGES[pt.e],a=pos[e[0]],b=pos[e[1]];if(!reduce)pt.t+=pt.sp;if(pt.t>1)pt.t-=1;
+    const t=pt.t,mt=1-t,mx=(a.x+b.x)/2;
+    const x=mt*mt*mt*a.x+3*mt*mt*t*mx+3*mt*t*t*mx+t*t*t*b.x;
+    const y=mt*mt*mt*a.y+3*mt*mt*t*a.y+3*mt*t*t*b.y+t*t*t*b.y;
+    const on=active&&(e[0]===active.id||e[1]===active.id);
+    if(active&&!on)return;
+    if(v2mode&&(COVMAP[e[0]]==="none"||COVMAP[e[1]]==="none")&&!on)return;
+    ctx.beginPath();ctx.arc(x,y,on?2.6:1.9,0,7);
+    ctx.fillStyle=pt.dormant?"rgba(120,130,150,.3)":on?"#f0c074":"rgba(72,214,232,.75)";
+    ctx.shadowColor=on?"#e3a94e":"#48d6e8";ctx.shadowBlur=on?10:6;ctx.fill();ctx.shadowBlur=0});
+  // nodes
+  NODES.forEach(n=>{const p=pos[n.id],col=v2mode?COVCOL[COVMAP[n.id]]:NT[n.t];const dim=active&&!lit.has(n.id);
+    ctx.globalAlpha=dim?0.28:1;
+    ctx.beginPath();ctx.arc(p.x,p.y,active&&active.id===n.id?11:8,0,7);
+    ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=active&&lit.has(n.id)?16:8;ctx.fill();ctx.shadowBlur=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,active&&active.id===n.id?11:8,0,7);ctx.strokeStyle="rgba(255,255,255,.25)";ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=dim?"rgba(150,165,190,.32)":(active&&lit.has(n.id))?"#ffffff":active?"rgba(205,215,232,.5)":"rgba(206,216,233,.72)";ctx.font="600 11.5px system-ui";ctx.textAlign=n.c===2?"right":n.c===0?"left":"center";
+    const tx=n.c===2?p.x-16:n.c===0?p.x+16:p.x;const ty=n.c===1?p.y-16:p.y+4;
+    ctx.fillText(n.l,tx,ty);ctx.globalAlpha=1});
+  requestAnimationFrame(draw);
+}
+function showInfo(n,mx,my){if(!n){info.classList.remove("on");return}
+  const cl={built:"c-built",partial:"c-partial",none:"c-none"}[COVMAP[n.id]],lb={built:"built in V2",partial:"partial in V2",none:"no V2 equivalent yet"}[COVMAP[n.id]];
+  const cov=v2mode?`<div style="margin-top:8px"><span class="chip ${cl}">${lb}</span></div>`:"";
+  info.innerHTML=`<span class="tag">${n.t==='src'?'source':n.t==='sink'?'destination':n.t==='eng'?'engine':'werner app'}</span><h5>${n.l}</h5><p>${n.d}</p>${cov}`;
+  info.style.left=Math.min(mx+16,W-270)+"px";info.style.top=Math.min(my+16,H-120)+"px";info.classList.add("on")}
+cv.addEventListener("mousemove",ev=>{const r=cv.getBoundingClientRect();const mx=ev.clientX-r.left,my=ev.clientY-r.top;
+  const n=nodeAt(mx,my);hover=n;cv.style.cursor=n?"pointer":"default";showInfo(sel?null:n,mx,my)});
+cv.addEventListener("mouseleave",()=>{hover=null;if(!sel)info.classList.remove("on")});
+cv.addEventListener("click",ev=>{const r=cv.getBoundingClientRect();const n=nodeAt(ev.clientX-r.left,ev.clientY-r.top);
+  sel=(sel&&n&&sel.id===n.id)?null:n;if(sel){showInfo(sel,pos[sel.id].x,pos[sel.id].y)}else info.classList.remove("on")});
+addEventListener("resize",layout);layout();draw();
+document.querySelectorAll(".mt").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".mt").forEach(x=>x.classList.remove("on"));b.classList.add("on");v2mode=b.dataset.m==="v2";document.getElementById("covlegend").classList.toggle("on",v2mode);if(sel)showInfo(sel,pos[sel.id].x,pos[sel.id].y)}));
+
+/* ============ CONTENT ============ */
+const SECTIONS=[["coverage","Coverage"],["flows","Flows"],["pricing","Pricing"],["rules","Rules"],["mule","Integration"],["guard","Data & incidents"],["data","Werner data"],["hazards","Hazards"],["v2","V2 rebuild"],["glossary","Glossary"]];
+document.getElementById("topnav").innerHTML=SECTIONS.map(s=>`<a href="#${s[0]}">${s[1]}</a>`).join("");
+
+/* coverage: the honest current-vs-V2 map */
+const COV=[
+ ["MM customer invoicing (AR)","built","Invoice → hydrate → allocate → Workday + EDI + Esker + Snowflake.","finance-mm-receivables — capture mode, ~400 tests, synthetic."],
+ ["MM carrier vouchers (AP)","built","Voucher → vendor → cost allocate → Workday AP.","finance-mm-payables — capture mode, ~352 tests."],
+ ["Vendor / supplier creation","built","Missing supplier → enrich → Workday.","In-process subflow in payables."],
+ ["Revenue / cost allocation","built","Split a charge across routes; Σ = total.","bre-allocations governed; finance-bre-evaluate only 2 of 7 buckets."],
+ ["Company / revenue-cat / legal-entity lookups","built","Governed, UI-editable, fail-closed.","Reference Tables — verified over 6 review rounds."],
+ ["EDI-210 routing","built","Envelope → BTC + TMS.","app-bre-edi — but a ~50-rule AS400/BYLR parity gap; least-governed."],
+ ["Governance / resiliency / observability","built","Draft→approve→active, DLQ, conservation, tracing.","finance-platform + per-service — shadow only."],
+ ["EDI-210 generation & delivery","partial","JSON→XML → PartnerLinQ.","PLQ capture adapter exists; full generation + acks unproven."],
+ ["Payment apply / reversal","partial","Paid/PartiallyPaid/Unapplied + reply.","States + reply normalizer built; live reply loop unproven."],
+ ["Snowflake analytics feed","partial","Allocation rows → warehouse.","Capture adapter only."],
+ ["Esker AR export","partial","OpenAR + OutsidePayment CSV.","Capture adapter; the 4 real Esker/Zoom jobs not reproduced."],
+ ["Cancellations / credit-memos","partial","Invoice + voucher cancel.","Cancel seam designed; not end-to-end."],
+ ["On-account artificial invoice","none","Synthetic invoice for on-account cash.","No V2 equivalent yet."],
+ ["CCSF customer-feed sync","none","Salesforce customers → lookup cache.","No V2 equivalent yet."],
+ ["PLQ original-invoice-number / rebill","none","Drives EDI-210 rebill referencing.","No V2 equivalent yet."],
+ ["Data-quality incident engine","none","Detect bad data → open incident in MM.","Not built in V2 (and dead-wired in mastery-datasync today)."],
+ ["External-flip (OFS)","none","MM Order Financial Status → External.","No V2 equivalent."],
+ ["Revenue reconciliation (AS400↔MM)","none","Reconcile trip revenue vs rate lines.","No V2 equivalent."],
+ ["Freight pricing engine","none","Buy/sell rate quoting from market data.","Zero V2 equivalent — whole capability."],
+ ["FX rate load","none","Xignite → Workday currency rates.","No V2 equivalent."],
+ ["Net-book-value / asset load","none","Workday assets → SB.","No V2 equivalent."],
+ ["Bank files (BMO / Comdata / GXS)","none","Positive-pay, disbursement, returns.","No V2 equivalent."],
+ ["Credit-file → AS400","none","CRI_Customer_Payment_Update → DB2.","No V2 equivalent."],
+ ["Salesforce work-order feed","none","Kafka → CSV → Workday.","No V2 equivalent."],
+ ["PeopleSoft / O2C billing path","none","RabbitMQ 210-billing → PLQ/TPA.","V2 is MM-only by design."],
+ ["Legacy JEDI / X12 (204/210/214/990/997)","none","Frozen legacy translator.","Not addressed."],
+ ["accounting-portal / RPS / EFS / TPA","none","Human charge-maintenance back-office.","Not addressed."],
+ ["Parity / cutover reconciliation","planned","Match V2 capture vs real output.","app-finance-recon — designed, not built."]
+];
+const covCount=k=>COV.filter(c=>c[1]===k).length;
+
+/* flows / rules / mule / guard / data — condensed but complete */
+const FLOWS=[
+ {t:"Customer Invoice (AR)",tag:"MM → Workday + EDI + Esker + Snowflake",cov:"built",
+  chain:[["MasterMind","EH","src"],["app-accounting",""],["hydrate","routes+AS400"],["allocate","BRE v1+v2"],["Workday","invoice","sink"],["PLQ / Esker / Snowflake","","sink"]],
+  steps:["MM emits invoice events; app-accounting consumes via SB <code>invoices</code>.","Hydrate routes, then fork on BRE version — v2 pulls AS400 order-to-trip via 4 strategies (MultiTrip/MultiRoute/OrderPerRoute/IbmRoute).","Allocate (v1+v2 shadow), validate customer, resolve posting company.","Egress to Workday <code>Submit_Customer_Invoice</code>, EDI-210 via PartnerLinQ, Esker CSV, Snowflake feed."],
+  note:"~125 invoices in a hardcoded <code>ProdInvoicesToSkip</code> list are <b>silently dropped</b> from egress."},
+ {t:"On-account → Artificial Invoice",tag:"payment with no invoice",cov:"none",
+  chain:[["OnAccount Kafka","","src"],["ArtificialInvoiceEngine",""],["Cosmos","artificial-invoices","sink"]],
+  steps:["A payment with no matching invoice manufactures a synthetic one, deterministic id <code>{Invoice}-{Customer}-{PayDate}</code>, USD default.","Gated by <code>artificial-invoice-processing</code>."],note:"No V2 equivalent yet."},
+ {t:"Voucher / Payables (AP)",tag:"MM → Workday AP",cov:"built",
+  chain:[["MasterMind","EH","src"],["accounting-payable","19-state"],["vendor+BRE",""],["enrich","spend/cost/legal"],["Workday AP","/apPayments227","sink"]],
+  steps:["Voucher walks a 19-state machine: Received→CarrierIdChecked→BreCall→PopulateCostLineItems→LegalEntityCheck→Hydrated→Sent.","Received blanks payment type for allowed carriers; no vendor → vendor-creation branch.","Egress SB <code>hydrated-vouchers</code> → Workday (pass-through)."],
+  note:"An orphaned <code>VoucherFeedManager</code> can send a raw voucher straight to egress, skipping the machine."},
+ {t:"Vendor / Supplier Creation",tag:"missing supplier → Workday",cov:"built",
+  chain:[["payable","no vendor","src"],["app-finance","TIN/EIN"],["Workday","Submit_Supplier","sink"]],
+  steps:["Parked voucher → SB <code>vendor-creation</code> → enrich carrier + TIN/EIN → Workday supplier → resume."],
+  note:"In app-finance the EventHub half is <b>disabled in every env</b>; only SB + HTTP live, and failures are <b>silently swallowed</b>."},
+ {t:"EDI-210 Routing & Delivery",tag:"→ PartnerLinQ",cov:"partial",
+  chain:[["invoice / O2C","envelope","src"],["routing BRE","13 conditions"],["→ BTC+TMS",""],["finance-bridge","JSON→XML"],["PartnerLinQ","","sink"]],
+  steps:["Path A (MM): Kafka <code>EdiInvoiceCreated</code> → app-finance-bridge JSON→XML → PLQ.","Path B (PeopleSoft/O2C): RabbitMQ 210-billing → mule-peoplesoft-int → the production PLQ.","Path C: legacy JEDI X12 (frozen)."],
+  note:"Bridge prod config points PLQ at a <b>non-production endpoint</b>; runtime XML is never XSD-validated; the 'EDI report job' is unbuilt scaffolding."},
+ {t:"Payment Apply / Reversal / Reply",tag:"Workday paid → MM",cov:"partial",
+  chain:[["Workday","paid","src"],["Kafka payment-events",""],["app-accounting","apply/unapply"],["MM write-back","bridge","sink"]],
+  steps:["Payment events apply Paid/PartiallyPaid; a separate consumer detects reversals/unapplied, blocked by 3 rules.","MM write-back matched on correlationId."],
+  note:"<b>82.7%</b> of every payment-reply ever has dead-lettered; ~1.56M confirmations aged out of an undrained queue."},
+ {t:"PLQ Rebill (original-invoice capture)",tag:"rebill referencing",cov:"none",
+  chain:[["PLQ CIN","+HTTP","src"],["Cosmos","original-cin 20mo"],["EDI-210","rebill ref","sink"]],
+  steps:["PLQ returns the customer's original-invoice-number; dual-source (EDI first vs authoritative PLQ overwrite), 20-month TTL; feeds EDI-210 rebills (purpose <code>RB</code>)."],note:"No V2 equivalent yet."},
+ {t:"Snowflake Analytics Feed",tag:"allocation rows → warehouse",cov:"partial",
+  chain:[["shipment updates","","src"],["finance-sync","intake filter"],["BRE → Kafka",""],["Snowflake","sink","sink"]],
+  steps:["A three-filter intake gate (event-type, lifecycle, division) decides what enters the outbox; rejects are silently dropped.","Kafka key is a random GUID (no ordering); publishes the <b>raw BRE response</b> (the flattened event is dead code)."],
+  note:"The division filter drops null/empty — the opposite of its own doc comment."}
+];
+const RULES=[
+ {t:"Revenue / Cost Allocation",g:"governed V2",b:`5 stages, 7 buckets (+1 synthetic): Percentage (∝ miles), FixedCost, ZeroMilesSplits, RevenueMatrix, Mexico ×3. <code>ConservationRemainder</code> is a synthetic penny-redistribution label, not a bucket (v1 undercounted as "6"). Σ=total enforced exactly.`},
+ {t:"RevenueMatrix mileage bands",g:"data",b:`0–14mi→$204/$40.80 · 15–29→$260/$52 · 30–49→$274/$54.80 · 50–74→$284/$56.80 · 75–100→$359/$71.80 (Linehaul/Fuel). The whole engine is ~57 rows across 6 SQL tables; version <code>v01012020</code>.`},
+ {t:"EDI-210 Routing",g:"engine",b:`1,421 rules · 13 conditions → BTC + TMS · most-specific match (ties→oldest) · MM 1,414 / HOPTEK 6 / ECM 1. Operators: Exact/Contains/StartsWith/EndsWith/NoMatch + 4 Length (unused). <mark>Parity gap: legacy has 48 AS400 + 2 BYLR rules; V2 seed has zero.</mark>`},
+ {t:"Company-posting / Legal entity",g:"governed V2",b:`(BillingEntity, currency) → company: WECAN×CAD/USD→WECC, WEVAS/WERNR→WERN, WGLMX×USD/MXN→WGLMX, WGLMX×CAD→WERN ("should not exist"). AP has its own (payableCompany,currency,crossBorder)→legal-entity + 8-entry TriumphPay matrix.`},
+ {t:"Revenue Category",g:"governed V2",b:`~150 rate-type→GL entries incl. Mexico <code>MX-</code> and customer-specific <code>CHWY-</code> (Chewy). RC0100 Linehaul, RC0700 Fuel. Now a governed Reference Table, fail-closed on unmapped.`},
+ {t:"SCAC override",g:"code",b:`(division, criteria)→SCAC: Baylor (59 codes)→BYLR, VAN NETWORK→WENP, INTERMODAL→WMMI, DEDICATED→WEND, default WVAS. Lives in mastery-datasync, not the EDI engine.`},
+ {t:"Blocked Bill-To codes",g:"data",b:`7,787 rows, compiled into code (71/353 commits were blocklist edits, ~72k-line migrations each). Plus Dedicated-BTC+OFS=External→PeopleSoft-block. A lost code silently un-blocks a customer.`},
+ {t:"Reference datasets",g:"data",b:`Allowed carriers 42 · EDI billing codes 899 · Payment charge codes 144 · Spend categories 284→13 · Cost centers 673→9 · User-defined fields 524 · Payment-method maps (case-sensitive landmine: <code>manual (outsourced)</code>→Check).`},
+ {t:"EDI-210 builder sentinels",g:"code",b:`Rebill <code>RB</code> (suffix>01) else <code>00</code> · invalid-trailer regex drops <code>0+/Z+/NA/UNKNOWN/NONE/TBA/TBD</code> · rate qual PM/FLT · packaging PCS · equipment CN/TL · tz America/Chicago.`},
+ {t:"Mule hard-coded rules",g:"mule",b:`<code>paymentMethod:"CC"</code> always · <code>getGlIdentifier</code>→DIV3075/DIV4000 · <code>NET_30</code> silent default · <code>USD/USDCAD</code> · weight <code>lb→L</code> · dummy-charge <code>5203/BASE OCEAN/$0.01</code>.`},
+ {t:"Payables governed sets (V2)",g:"governed V2",b:`8 fail-closed: blocked-bill-to · payment-routing · legal-entity · spend-category · cost-center · supplier-defaults · cancel-transmission · voucher-defaults; + a 9th (revenue-allocation) over HTTP.`}
+];
+const MULE=[
+ ["Revenue reconciliation","mule-financial-int","AS400↔MM rate-line reconciliation; own 15-code blocklist; order filter startsWith('400'); blockInvoicedOrders flag (fail-open); NO DLQ."],
+ ["AS400 program calls","mule-finance-sapi","jt400 program calls + a decimal-fixup regex; a hardcoded payment method; a config-driven route-merge flag; a hardcoded trust-store password."],
+ ["Workday integration heart","mule-workday-int","FX load (Xignite USDCAD, 4am); net-book-value; bank files (BMO positive-pay, Comdata, GXS); credit-file→AS400 DB2; Salesforce work-order feed; Net_30 default."],
+ ["Workday Financials SAPI","mule-workday-financials-sapi","Invoices/suppliers/POs/AP. Bank engine deleted Feb-2024 but creds remain. Ships a committed private key in source (security finding — specifics redacted)."],
+ ["PeopleSoft ↔ EDI-210","mule-peoplesoft-int","RabbitMQ 210-billing → EDI-210 mapping; 3 LD flags inconsistent fail-open/closed; STG missing the LD block; NO DLQ."],
+ ["GL-identifier & files","mule-finance-invoice-papi · mule-finance-int","getGlIdentifier→DIV3075/DIV4000; 11 SFTP/cron file-transfer flows (Esker AR feeds, PeopleSoft→AS400, iView imaging)."]
+];
+const GUARD=[
+ {t:"Data-quality incident engine",b:`Detect bad source data → raise an incident in MasterMind → resolve on fix, with dedup. <b>Two engines:</b> app-accounting (4 types, 256-bucket striped lock) and mastery-datasync (9 criteria). <span class="chip c-none">dead-wired</span> in mastery-datasync the accessor is a Dummy — incidents are computed but <b>never delivered</b>.`},
+ {t:"finance-sync intake filter",b:`Three chained filters gate what reaches analytics (event-type + lifecycle + division). Rejects are acked and <b>silently dropped</b>; the division filter drops null/empty against its own doc comment.`},
+ {t:"Load validation + $25k alert",b:`Field/date/country checks; a Pilkington GL+TV rule; any charge &gt; <b>$25,000</b> emails the entering employee.`},
+ {t:"External-flip (OFS) + retry",b:`Flips MM Order Financial Status Complete→External via a daily cron + on-demand HTTP; a LoadReply listener correlates MM's async reply. Fails open on unknown bill-to; uses machine-local time.`},
+ {t:"Transform REST API (9 endpoints)",b:`mastery-datasync serves the domain's lookups: businessEntity, costDivision, legalEntity, edi/edis, paymentChargeCode, scac, btc, carrier/tpay — backed by PaymentRule + ActivityAudit tables.`},
+ {t:"Alert & notification subsystems",b:`app-accounting: Zoom channel (30s cooldown) + Critical-only email (hard-disabled) + AlertEngine. mastery-datasync: OpsGenie + a daily DefaultDivisionReport CSV email. V2 adds an AlertRouter with a synthetic delivery-probe.`}
+];
+const DATA=[
+ ["Company","WERN / WECC / WGLMX","main / Canada / Mexico"],["Billing entity","WECAN/WEVAS/WERNR","→ WECC / WERN"],
+ ["Division","DIV3075/3510/9105/8000/9020","TL / Intermodal / Baylor / default / Mexico"],["Sentinel","GLIdentifier","GL-only / manual"],["Region","R9999","default"],
+ ["Revenue cat","RC0100 / RC0700","Linehaul / Fuel"],["Rate type","MX-* / CHWY-*","Mexico / Chewy-specific"],
+ ["SCAC","WVAS/BYLR/WMMI/WEND/WENP","default/Baylor/Intermodal/Dedicated/Van"],["TMS","MM / HOPTEK / ECM","1,414 / 6 / 1 rules"],
+ ["TMS (dropped)","AS400 / BYLR","48 + 2 legacy → ZERO in V2"],["Currency","USD / CAD / MXN",""],
+ ["Accessorial","Team $200 · Tanker $250","Driver Assist $250 · Hazmat $300"],["Charge","5203 BASE OCEAN","$0.01 dummy trigger"]
+];
+const VOL=[
+ ["Invoices / day","~2,800"],["Payments / day","~1,400"],["EDI ops / day","~1,700"],["Vouchers (real)","555,159"],
+ ["Routing rules","1,421 (vs 1,327 legacy)"],["Pricing tables","22"],["Blocked BTCs","7,787"],["EDI codes","899"],["Spend cats","284→13"],["Cost centers","673→9"],
+ ["⚠ CarrierCode failures","308,172 / day"],["⚠ Payment DLQ rate","82.7%"],["⚠ Lost confirmations","~1.56M"],["⚠ SB dead-letters now","~15,000 (+190/day)"]
+];
+const HAZ=[
+ ["crit","Silent data loss","~1.56M lost confirmations; ~15k SB dead-letters growing; the ~125-invoice skip-list + finance-sync intake filter drop with no log."],
+ ["crit","Invoice→carrier broken","308,172× 'CarrierCode required' in prod — the join lives on the order, and is unbuilt."],
+ ["crit","Incidents not delivered","mastery-datasync's incident accessor is a Dummy that never POSTs — the data-quality loop is effectively dead."],
+ ["crit","Secrets & PII","Credentials committed in source (a private key + config secrets) and a tax-ID (PII) handling gap — specifics withheld, flagged for remediation."],
+ ["crit","EDI report job is unbuilt","app-finance-bridge's 'report' references types that don't exist — won't compile."],
+ ["warn","Prod pointing at dev / disabled halves","An EDI bridge pointing at a non-prod endpoint; a vendor-creation ingest disabled in all envs, failures swallowed."],
+ ["warn","Dark observability","42k exceptions/7d hidden behind 193 green requests; ~330k/wk from health-check infra; probes return 200 unconditionally; the EDI evaluate path emits zero trace."],
+ ["warn","Migration parity gap","~50 legacy AS400/BYLR routing rules absent from the V2 seed; parity gate only diffed SQLite→Cosmos."],
+ ["warn","Messy Cosmos","4 fragmented accounts; hot-partition keys; voucher data duplicated; audit co-mingled, no TTL; an 'Exception' field set on 540,736 successful vouchers."],
+ ["info","Dead code & landmines","Orphaned egress-bypass; NotImplemented publishers; a mock-response baked into a prod util; commented-out idempotency gate; Windows tz ids that throw on Linux."]
+];
+const V2=[
+ ["finance-mm-receivables","AR — 12-state machine, 3 normalizers, one BRE call, 4 capture adapters, correlation-wait, shadow-parity. ~400 tests, synthetic."],
+ ["finance-mm-payables","AP — 12-state machine, in-process vendor subflow, 8 governed rule sets. ~352 tests."],
+ ["bre-allocations","Allocation engine — 7 buckets + 3 rule types, governed Reference Tables + Revenue Matrix, 2-layer conservation, OTel."],
+ ["finance-bre-evaluate","Greenfield rules runtime — only 2 of 7 allocation buckets implemented so far."],
+ ["app-bre-edi","EDI routing — 1,421 rules; least-governed (IsActive only, no trace on evaluate)."],
+ ["finance-platform","Shared contracts + delivery FSM + analyzers + governance reference (not a runtime lib)."],
+ ["finance-console","Read-only observability + control plane; real data providers still stubbed (mock)."],
+ ["app-finance-recon (planned)","Captures real output (A) vs V2 capture (B), gates cutover. Not built."]
+];
+const GLOSS=[["AR","Accounts Receivable — customer invoicing."],["AP","Accounts Payable — carrier vouchers."],["BRE","Business Rules Engine."],["BTC","Bill-To-Code (EDI routing output)."],["TMS","Transportation Management System / MasterMind."],["SCAC","Standard Carrier Alpha Code."],["OFS","Order Financial Status (the 'external flip')."],["Greenscreens / DAT","Market-rate feeds for pricing."],["RaaS","Workday Report-as-a-Service."],["DLQ","Dead-Letter Queue."],["PLQ","PartnerLinQ — emits EDI-210."],["EDI-210","X12 freight-invoice document."],["CIN","PLQ's original-invoice-number (drives rebills)."],["jt400","Java library calling AS400 RPG programs."],["NBV","Net Book Value (Workday asset load)."],["Voucher","A carrier-payable (the AP unit)."],["Hydrate","Enrich an event before egress."],["Capture mode","V2 stores its would-be output instead of sending it."],["Correlation-wait","A store (not a DLQ) holding events until their partner arrives — the 1.56M fix."],["Shadow parity","Matching V2's capture to the real output before cutover."],["finbre","app-accounting-bre-v2 (C#/SQL allocation)."],["JEDI","Legacy X12 204/210/214/990/997 translator."]];
+
+/* ============ RENDER ============ */
+const E=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const M=document.getElementById("content");
+function sec(id,eye,t,lead,nodes){const s=E("section");s.id=id;s.innerHTML=`<div class="eyebrow">${eye}</div><h2>${t}</h2>${lead?`<p class="lead">${lead}</p>`:""}`;nodes.forEach(n=>s.appendChild(n));M.appendChild(s)}
+const WRAP=h=>E("div",null,h);
+const covClass={built:"c-built",partial:"c-partial",none:"c-none",planned:"c-planned"};
+const covLabel={built:"built in V2",partial:"partial",none:"not yet",planned:"planned"};
+
+/* coverage */
+{ const total=COV.length,b=covCount("built"),p=covCount("partial"),n=covCount("none"),pl=covCount("planned");
+  const bar=WRAP(`<div class="covbar"><span style="flex:${b};background:var(--good)"></span><span style="flex:${p};background:var(--warn)"></span><span style="flex:${pl};background:var(--info)"></span><span style="flex:${n};background:var(--crit)"></span></div>`);
+  const ctrl=E("div","cov-controls");ctrl.innerHTML=`<span class="cbtn on" data-c="ALL">All ${total}</span><span class="cbtn" data-c="built"><span class="d" style="background:var(--good)"></span>Built ${b}</span><span class="cbtn" data-c="partial"><span class="d" style="background:var(--warn)"></span>Partial ${p}</span><span class="cbtn" data-c="planned"><span class="d" style="background:var(--info)"></span>Planned ${pl}</span><span class="cbtn" data-c="none"><span class="d" style="background:var(--crit)"></span>Not yet ${n}</span>`;
+  const grid=E("div","covgrid");COV.forEach(([t,st,cur,v2])=>{const c=E("div","cov "+st);c.dataset.c=st;c.dataset.s=(t+" "+cur+" "+v2).toLowerCase();
+    c.innerHTML=`<h4>${t}<span class="chip ${covClass[st]}">${covLabel[st]}</span></h4><p>${cur}</p><div class="v2"><b>V2:</b> ${v2}</div>`;grid.appendChild(c)});
+  sec("coverage",`The honest question — does V2 do everything?`,"Not yet. Here's exactly what's built, partial, and missing.",
+   `<b>No.</b> V2 is a shadow-mode rebuild of the core spine — and <b>nothing runs on real data yet</b> (everything is capture-mode on synthetic data, pending parity proof and cutover). Of ${total} current capabilities: <b style="color:var(--good)">${b} built</b>, <b style="color:var(--warn)">${p} partial</b>, <b style="color:var(--info)">${pl} planned</b>, <b style="color:var(--crit)">${n} with no V2 equivalent yet</b> — including the freight-pricing engine, the whole money-movement Mule tier, reconciliation, PeopleSoft, and the legacy flows.`,
+   [bar,ctrl,grid]);
+  ctrl.querySelectorAll(".cbtn").forEach(x=>x.addEventListener("click",()=>{ctrl.querySelectorAll(".cbtn").forEach(y=>y.classList.remove("on"));x.classList.add("on");const f=x.dataset.c;grid.querySelectorAll(".cov").forEach(c=>c.classList.toggle("hidden",f!=="ALL"&&c.dataset.c!==f))}));
+}
+/* flows */
+{ const nodes=[];FLOWS.forEach(f=>{const d=E("details","x flow-item");d.dataset.s=(f.t+" "+f.tag+" "+f.steps.join(" ")).toLowerCase();
+   const chain=f.chain.map((c,i)=>`${i?'<span class="far">→</span>':''}<div class="fn ${c[2]||''}"><span class="ft">${c[0]}</span>${c[1]?`<span class="fs">${c[1]}</span>`:''}</div>`).join("");
+   d.innerHTML=`<summary><span class="chip ${covClass[f.cov]}">${covLabel[f.cov]}</span><span>${f.t}</span><span class="tw">+</span></summary><div class="body"><div class="meta" style="color:var(--gold2);font-size:.78rem;margin-bottom:8px">${f.tag}</div><div class="flow">${chain}</div><ol class="steps">${f.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="note">${f.note}</div></div>`;nodes.push(d)});
+  sec("flows",`02 · the pipelines`,"Every core flow, end to end","Each tagged with its V2 status. Click to expand the real topics, stores, and edge cases.",nodes);
+}
+/* pricing */
+sec("pricing",`03 · the hidden engine`,"Freight pricing — a whole capability with no V2 equivalent",
+ "Buried in <code>app-business-engine</code> alongside EDI routing: an engine that quotes buy/sell truckload rates from market data before a load runs. Deployed to prod in triple-region but currently dormant.",
+ [ (()=>{const g=E("div","grid g3");[["Market blend","Greenscreens (Werner+Market) + DAT high/mid/low + core-lane RPM + price model → buy/sell target/low/high."],["Geography & time","State/region adjustments, a ~900-row ZIP3 asset-zone map, pickup-date & holiday premiums."],["Fuel & accessorials","Werner fuel surcharge; Team max(0.2×mi,$200), Tanker $250, Driver Assist $250, Hazmat $300."],["Intermodal & asset bidding","Intermodal rates + transit; a bid/no-bid decision engine + asset target sell rate."]].forEach(([h,p])=>g.appendChild(E("div","card",`<h4>${h}</h4><p>${p}</p>`)));return g})(),
+   WRAP(`<div class="note">22 decision tables in <code>Rules.xlsx</code>. The pricing apps deploy but serve the routing model on <code>main</code> — so the pricing workbooks are built but not the served model. <span class="chip c-none">no V2 equivalent</span></div>`) ]);
+/* rules */
+{ const nodes=[];RULES.forEach(r=>{const d=E("details","x rule-item");d.dataset.s=(r.t+" "+r.g+" "+r.b).toLowerCase();
+   const gc=r.g.includes("governed")?"c-built":r.g==="engine"?"c-navy":"c-gold";
+   d.innerHTML=`<summary><span class="chip ${gc}">${r.g}</span><span>${r.t}</span><span class="tw">+</span></summary><div class="body">${r.b}</div>`;nodes.push(d)});
+  sec("rules",`04 · the logic`,"Business rules","Twenty-plus rule families — governed data in V2, a rules engine, or still hard-coded in code/Mule.",nodes);
+}
+/* mule */
+{ const nodes=[];MULE.forEach(([t,r,b])=>{const d=E("details","x mule-item");d.dataset.s=(t+" "+r+" "+b).toLowerCase();
+   d.innerHTML=`<summary><span class="lbl">mule</span><span>${t}</span><span class="tw">+</span></summary><div class="body"><div class="src" style="margin-bottom:6px">${r}</div>${b}</div>`;nodes.push(d)});
+  sec("mule",`05 · the plumbing`,"Integration & bank-file flows","The MuleSoft tier isn't a thin connector layer — it holds a reconciliation engine and all the money-movement: FX, assets, bank files, credit files, Salesforce.",nodes);
+}
+/* guard */
+{ const nodes=[];GUARD.forEach(x=>{const d=E("details","x guard-item");d.dataset.s=(x.t+" "+x.b).toLowerCase();
+   d.innerHTML=`<summary><span class="lbl">check</span><span>${x.t}</span><span class="tw">+</span></summary><div class="body">${x.b}</div>`;nodes.push(d)});
+  sec("guard",`06 · watching the data`,"Validation, filtering & incidents","How the domain guards itself: intake filters, field validators, the $25k alert, and the two incident engines that open tickets in MasterMind.",nodes);
+}
+/* data */
+{ const cats=[...new Set(DATA.map(d=>d[0]))];
+  const fb=E("div","fbar");fb.innerHTML=`<input id="dq" placeholder="Filter codes…">`;
+  const tbl=WRAP(`<div class="tw-scroll"><table><thead><tr><th>Kind</th><th>Code</th><th>Meaning</th></tr></thead><tbody>${DATA.map(([k,c,m])=>`<tr class="drow" data-s="${(k+' '+c+' '+m).toLowerCase()}"><td><span class="chip c-navy">${k}</span></td><td class="mono" style="color:var(--cyan2)">${c}</td><td style="color:var(--ink2)">${m}</td></tr>`).join("")}</tbody></table></div>`);
+  const vol=WRAP(`<h3>Real volumes</h3><div class="grid g3">${VOL.map(([m,v])=>`<div class="card" style="padding:14px 16px"><div style="font-family:var(--disp);font-size:1.5rem;color:${m.startsWith('⚠')?'var(--crit)':'var(--gold2)'};font-weight:600">${v}</div><div style="font-size:.8rem;color:var(--ink3)">${m.replace('⚠ ','')}</div></div>`).join("")}</div>`);
+  sec("data",`07 · the vocabulary`,"Werner-specific data points","Every code, entity, and volume — filter the table, read the real counts.",[fb,tbl,vol]);
+  const dq=document.getElementById("dq");dq.addEventListener("input",()=>{const v=dq.value.toLowerCase();tbl.querySelectorAll(".drow").forEach(r=>r.classList.toggle("hidden",v&&!r.dataset.s.includes(v)))});
+}
+/* hazards */
+sec("hazards",`08 · what's broken`,"Pain points & known hazards","Measured findings from the live-data investigation and the code sweep — every figure real, every hazard cited to a file.",
+ [ (()=>{const w=E("div","grid");w.style.gap="12px";HAZ.forEach(([sev,t,d])=>{const c={crit:"c-none",warn:"c-partial",info:"c-navy"}[sev];
+    w.appendChild(E("div","card hz-item",`<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><span class="chip ${c}">${sev==='crit'?'critical':sev==='warn'?'warning':'hazard'}</span><h4 style="margin:0">${t}</h4></div><p>${d}</p>`)).dataset.s=(t+" "+d).toLowerCase();});return w})() ]);
+/* v2 */
+sec("v2",`09 · the rebuild`,"The V2 fleet","A clean, governed, shadow-fed rewrite of the core spine — Cosmos-first, MuleSoft removed, capture-before-send, a CI conformance gate. Still on synthetic data, pre-cutover.",
+ [ (()=>{const g=E("div","grid g2");V2.forEach(([a,d])=>g.appendChild(E("div","card v2-item",`<h4><code style="color:var(--cyan2)">${a}</code></h4><p>${d}</p>`)));return g})(),
+   WRAP(`<div class="note">Cutover path: additive taps → capture V2 output → reconcile vs real output (money, zero tolerance) → ≥99.5% parity per target → human-signed flip. Order: Snowflake → Esker → Workday → EDI-210 → payment write-back. <b>Nothing is cut over yet.</b></div>`) ]);
+/* glossary */
+{ const g=E("div","grid g3");GLOSS.forEach(([t,d])=>g.appendChild(E("div","card gl-item",`<h4 style="color:var(--cyan2)">${t}</h4><p>${d}</p>`)).dataset.s=(t+" "+d).toLowerCase());
+  sec("glossary",`10 · the language`,"Glossary","Every acronym, plain-English.",[g]);
+}
+document.getElementById("foot").innerHTML=`Werner Finance Domain — live map. Built from a code-level sweep of all 8 .NET apps + 10 MuleSoft repos + the 2026 domain-review docs & captured Werner data. Figures are measured; unverified items are marked. Interactive — hover the map, click nodes, search top-right, filter the coverage.`;
+
+/* nav + search */
+const links=[...document.querySelectorAll(".topnav a")],byId=Object.fromEntries(links.map(a=>[a.getAttribute("href").slice(1),a]));
+new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove("active"));byId[e.target.id]&&byId[e.target.id].classList.add("active")}}),{rootMargin:"-25% 0px -70% 0px"}).observe&&document.querySelectorAll("section").forEach(s=>{const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove("active"));byId[e.target.id]&&byId[e.target.id].classList.add("active")}}),{rootMargin:"-25% 0px -70% 0px"});o.observe(s)});
+const q=document.getElementById("q");let searchWasEmpty=true;
+q.addEventListener("input",()=>{const v=q.value.trim().toLowerCase();
+  document.querySelectorAll(".flow-item,.rule-item,.mule-item,.guard-item,.hz-item,.v2-item,.gl-item,.drow,.cov").forEach(el=>{el.classList.toggle("hidden",v&&!(el.dataset.s||el.textContent).toLowerCase().includes(v))});
+  document.querySelectorAll("section").forEach(s=>{if(!v){s.classList.remove("hidden");return}const items=s.querySelectorAll(".flow-item,.rule-item,.mule-item,.guard-item,.hz-item,.v2-item,.gl-item,.drow,.cov");if(!items.length){s.classList.remove("hidden");return}s.classList.toggle("hidden",![...items].some(el=>!el.classList.contains("hidden")))});
+  if(v&&searchWasEmpty){M.scrollIntoView({behavior:"smooth",block:"start"})}searchWasEmpty=!v;
+});
+</script>
+
+</body></html>
