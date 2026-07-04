@@ -38,18 +38,6 @@ code,.mono{font-family:var(--mono);font-size:.85em}
 .tsearch:focus{outline:2px solid var(--gold);width:220px}
 @media(max-width:820px){.topnav{display:none}.tsearch{width:120px}}
 .bd-sm{display:none}
-@media(max-width:640px){
-  .top{gap:8px;padding:10px 14px}
-  .logo{font-size:1rem}
-  .tsearch{width:88px}.tsearch:focus{width:120px}
-  .hero{height:calc(100svh - 49px);min-height:560px}
-  .herobadge{display:none}
-  .maptoggle{top:12px;left:12px;right:auto}
-  .mt{font-size:.72rem;padding:7px 13px}
-  .covlegend{top:56px;left:12px;right:auto;font-size:.62rem;gap:9px;padding:6px 10px;flex-wrap:wrap;max-width:calc(100% - 24px)}
-  .maplegend{bottom:14px;left:12px;right:12px;font-size:.64rem;gap:10px;padding:7px 12px;justify-content:center}
-  #nodeinfo{max-width:calc(100vw - 32px)}
-}
 
 /* hero — full-screen live map */
 .hero{position:relative;height:calc(100vh - 53px);min-height:480px;border-bottom:1px solid var(--line);overflow:hidden}
@@ -156,6 +144,20 @@ tbody tr:hover{background:var(--panel2)}
 .hidden{display:none!important}
 .foot{padding:50px 0 40px;color:var(--ink3);font-size:.8rem;max-width:80ch}
 mark{background:rgba(227,169,78,.28);color:#fff;border-radius:3px;padding:0 2px}
+
+/* ===== mobile (must come after base rules to win on source order) ===== */
+@media(max-width:640px){
+  .top{gap:8px;padding:10px 14px}
+  .logo{font-size:1rem}
+  .tsearch{width:88px}.tsearch:focus{width:120px}
+  .hero{height:calc(100svh - 49px);min-height:560px}
+  .herobadge{display:none!important}
+  .maptoggle{top:12px;left:12px;right:auto}
+  .mt{font-size:.72rem;padding:7px 13px}
+  .covlegend{top:56px;left:12px;right:auto;font-size:.62rem;gap:9px;padding:6px 10px;flex-wrap:wrap;max-width:calc(100% - 24px)}
+  .maplegend{bottom:14px;left:12px;right:12px;font-size:.64rem;gap:10px;padding:7px 12px;justify-content:center}
+  #nodeinfo{max-width:calc(100vw - 32px)}
+}
 </style>
 
 <div class="top">
