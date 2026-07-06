@@ -1373,7 +1373,8 @@ window.__views=window.__views||{};window.__views.atlas={onShow:function(){render
 
   /* cover / hero */
   var cover=document.getElementById('cover'), ambRun=true;
-  function enter(name){ if(name)switchTo(name); cover.classList.add('gone'); setTimeout(function(){ambRun=false;},800); }
+  document.body.style.overflow='hidden';   /* lock page scroll while the cover is up */
+  function enter(name){ document.body.style.overflow=''; if(name){switchTo(name);} else {window.scrollTo(0,0);} cover.classList.add('gone'); setTimeout(function(){ambRun=false;},800); }
   document.getElementById('enter').addEventListener('click',function(){enter();});
   document.querySelectorAll('#cover .band').forEach(function(b){
     b.addEventListener('click',function(){enter(b.getAttribute('data-view'));});
