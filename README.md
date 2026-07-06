@@ -1,7 +1,8 @@
-# Finance Domain Map
+# Finance V2 · Explorer
 
-Interactive single-page map of the Werner freight finance estate — 18 apps, data flows, business rules, and V2-rebuild coverage.
+Interactive walkthrough of the Werner freight finance estate across three altitudes:
+**Domain map** (the whole estate) · **Live pipeline** (money in motion, source → sink) · **Flow atlas** (every stage & what-if).
 
 Live: https://suryamereddy.github.io/finance-domain-map/
 
-Static site (one self-contained `index.html`, no build step). Served via GitHub Pages.
+Single self-contained `index.html`, no build step. Served via GitHub Pages.

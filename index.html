@@ -3,13 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Finance Domain Map — Werner Freight Estate</title>
-<meta name="description" content="Interactive map of the Werner finance domain: 18 apps, flows, rules, and the V2 rebuild coverage.">
+<title>Finance V2 · Explorer — Werner</title>
+<meta name="description" content="Werner finance domain from the 30,000-ft map down to a single pipeline stage: domain map, live pipeline, and flow atlas.">
 <style>:root{color-scheme:dark}html,body{margin:0;padding:0}img{max-width:100%}</style>
 </head>
 <body>
 <style>
-:root{
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#04070e;color:#e9f0fb;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+#view-domain section{scroll-margin-top:112px}
+
+/* ---- shell chrome ---- */
+#shell-head{position:fixed;top:0;left:0;right:0;height:54px;z-index:250;display:flex;align-items:center;gap:28px;
+  padding:0 20px;background:#070f1e;
+  border-bottom:1px solid rgba(252,192,5,.22);box-shadow:0 6px 30px rgba(0,0,0,.6)}
+.wordmark{display:flex;align-items:baseline;gap:7px;white-space:nowrap;font-weight:800;letter-spacing:.03em}
+.wordmark::before{content:"";align-self:center;width:8px;height:8px;border-radius:50%;background:#fcc005;box-shadow:0 0 11px #fcc005;margin-right:3px;animation:pulseDot 2.4s ease-in-out infinite}
+.wordmark .fin{font-size:15px;color:#f4f8ff}
+.wordmark .v2{font-size:15px;color:#fcc005}
+.wordmark .ex{font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:#7f90ad;font-weight:700}
+@keyframes pulseDot{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* altitude descent stepper (replaces flat tabs) */
+#altnav{display:flex;align-items:center}
+.alt{position:relative;display:flex;flex-direction:column;gap:1px;cursor:pointer;padding:7px 20px 7px 26px;background:none;border:none;font:inherit;text-align:left}
+.alt .ft{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#5f7089;font-weight:700;transition:color .25s}
+.alt .fn{font-size:12.5px;font-weight:700;color:#93a6c4;transition:color .25s;white-space:nowrap}
+.alt:hover .fn{color:#dbe6f7}
+.alt.on .fn{color:#fff}.alt.on .ft{color:#fcc005}
+.alt .node{position:absolute;left:6px;top:50%;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;border:1.5px solid #35507e;background:#0a1327;transition:.28s;z-index:1}
+.alt.on .node{border-color:#fcc005;background:#fcc005;box-shadow:0 0 11px #fcc005}
+.alt.done .node{border-color:#fcc005;background:#22314d}
+.alt::after{content:"";position:absolute;left:10px;top:50%;height:1.5px;width:100%;background:linear-gradient(90deg,#33507e,#233a5e);z-index:0}
+.alt:last-child::after{display:none}
+.alt.done::after{background:linear-gradient(90deg,#fcc005,#7a5a1f)}
+.headtag{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7f90ad;font-weight:700;white-space:nowrap}
+.headtag .liveled{width:7px;height:7px;border-radius:50%;background:#3ad29f;box-shadow:0 0 8px #3ad29f;animation:pulseDot 2s infinite}
+
+/* views — one shown at a time; the active document view scrolls the page under the fixed header */
+.view{display:none}
+.view.active{display:block}
+
+/* descent flash between altitudes */
+#flash{position:fixed;inset:0;z-index:240;pointer-events:none;opacity:0;transform-origin:50% 42%;
+  background:radial-gradient(circle at 50% 42%, rgba(252,192,5,.12), rgba(4,7,14,0) 55%)}
+#flash.go{animation:descend .6s ease}
+@keyframes descend{0%{opacity:0;transform:scale(1.18)}40%{opacity:1}100%{opacity:0;transform:scale(.86)}}
+
+/* ---- cover / hero ---- */
+#cover{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 36%, #0d1a35, #04070e 72%);transition:opacity .75s ease, visibility 0s linear .75s}
+#cover.gone{opacity:0;visibility:hidden;pointer-events:none}
+#ambient{position:absolute;inset:0;z-index:0}
+#cover .track{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;z-index:1;
+  background:linear-gradient(180deg,transparent,rgba(252,192,5,.16),transparent);opacity:0;animation:rise 1s .5s forwards}
+#cover .token{position:absolute;left:50%;margin-left:-5px;width:10px;height:10px;border-radius:50%;background:#fcc005;box-shadow:0 0 18px #fcc005;animation:fall 3.6s linear infinite}
+.cover-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:0 22px}
+.cover-in .kicker{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:#fcc005;font-weight:700;opacity:0;animation:rise .8s .1s forwards}
+.cover-in h1{font-size:clamp(40px,8.4vw,92px);line-height:.96;font-weight:800;letter-spacing:-.02em;margin:16px 0 8px;text-align:center;text-wrap:balance;
+  background:linear-gradient(180deg,#ffffff,#9db4d8);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;animation:rise .95s .22s forwards}
+.cover-in h1 em{font-style:normal;-webkit-text-fill-color:#fcc005;color:#fcc005}
+.cover-in .thesis{font-size:clamp(14px,2.1vw,18px);color:#b7c6e0;max-width:46ch;text-align:center;line-height:1.5;opacity:0;animation:rise .95s .4s forwards}
+.cover-in .bands{display:flex;flex-direction:column;gap:9px;margin:34px 0 30px;width:min(440px,84vw);opacity:0;animation:rise .95s .58s forwards}
+.band{position:relative;display:flex;align-items:center;gap:13px;padding:12px 16px;border:1px solid #1c2c48;border-radius:12px;background:rgba(12,22,42,.55);cursor:pointer;transition:border-color .2s,transform .15s,background .2s}
+.band:hover{border-color:#fcc005;transform:translateX(4px);background:rgba(18,30,56,.7)}
+.band .bn{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.06em;color:#fcc005;font-weight:700;width:52px}
+.band .bt{font-size:14px;font-weight:700;color:#e7eefb}
+.band .bd{margin-left:auto;font-size:11.5px;color:#7f90ad}
+.cover-in .enter{margin-top:2px;cursor:pointer;font:inherit;font-weight:800;font-size:14px;color:#1a1400;background:#fcc005;border:none;border-radius:30px;
+  padding:14px 32px;letter-spacing:.01em;box-shadow:0 12px 36px rgba(252,192,5,.30);opacity:0;animation:rise .95s .82s forwards;transition:transform .16s,box-shadow .2s}
+.cover-in .enter:hover{transform:translateY(-2px);box-shadow:0 16px 44px rgba(252,192,5,.46)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes fall{0%{top:-4%;opacity:0}9%{opacity:1}91%{opacity:1}100%{top:104%;opacity:0}}
+@media(prefers-reduced-motion:reduce){#cover *,.wordmark::before,.headtag .liveled{animation:none!important}.cover-in *{opacity:1!important}}
+
+/* ==================== DOMAIN MAP ==================== */
+#view-domain{
   --bg:#0a0d14; --bg2:#0f1420; --panel:#141b2b; --panel2:#1b2436; --line:#232f45; --line2:#2e3b56;
   --ink:#eef2f9; --ink2:#aab6cc; --ink3:#6c7a95;
   --gold:#e3a94e; --gold2:#f0c074; --cyan:#48d6e8; --cyan2:#8ce9f4; --violet:#8b7ff0;
@@ -19,147 +90,315 @@
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --disp:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001s!important}}
-a{color:var(--gold2);text-decoration:none}
-code,.mono{font-family:var(--mono);font-size:.85em}
-
-/* top bar */
-.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;padding:12px clamp(16px,4vw,44px);background:rgba(10,13,20,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.logo{font-family:var(--disp);font-weight:600;font-size:1.12rem;letter-spacing:.2px;color:#fff;white-space:nowrap}
-.logo b{color:var(--gold)}
-.topnav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
-.topnav a{padding:6px 11px;border-radius:8px;color:var(--ink2);font-size:.82rem;font-weight:500}
-.topnav a:hover{background:var(--panel2);color:#fff}
-.topnav a.active{background:var(--gold);color:#0a0d14}
-.tsearch{padding:7px 12px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);font-size:.85rem;width:170px}
-.tsearch:focus{outline:2px solid var(--gold);width:220px}
-@media(max-width:820px){.topnav{display:none}.tsearch{width:120px}}
-.bd-sm{display:none}
-
-/* hero — full-screen live map */
-.hero{position:relative;height:calc(100vh - 53px);min-height:480px;border-bottom:1px solid var(--line);overflow:hidden}
-#net{position:absolute;inset:0;width:100%;height:100%;display:block}
-.herobadge{position:absolute;z-index:3;top:18px;left:clamp(16px,4vw,44px);display:inline-flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--cyan2);border:1px solid var(--line2);background:rgba(20,27,43,.72);padding:6px 13px;border-radius:20px;font-weight:600;pointer-events:none;max-width:calc(100% - 30px)}
-.maplegend{position:absolute;z-index:3;bottom:22px;left:clamp(16px,4vw,44px);display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:.74rem;color:var(--ink2);pointer-events:none;background:rgba(20,27,43,.78);border:1px solid var(--line2);border-radius:22px;padding:9px 17px}
-.maplegend span{display:inline-flex;align-items:center;gap:7px}
-.badge{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan2);border:1px solid var(--line2);background:rgba(20,27,43,.6);padding:5px 12px;border-radius:20px;font-weight:600}
-.badge .pulse{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(72,214,232,.6);animation:pulse 2.4s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(72,214,232,.5)}70%{box-shadow:0 0 0 9px rgba(72,214,232,0)}100%{box-shadow:0 0 0 0 rgba(72,214,232,0)}}
-h1{font-family:var(--disp);font-weight:600;font-size:clamp(2.3rem,5.4vw,4rem);line-height:1.02;margin:.4em 0 .3em;letter-spacing:-.015em;color:#fff;text-wrap:balance}
-h1 em{font-style:normal;color:var(--gold)}
-.sub{font-size:clamp(1rem,1.6vw,1.22rem);color:var(--ink2);max-width:60ch}
-.herohint{position:absolute;z-index:2;bottom:0;left:0;right:0;margin:0;padding:34px clamp(16px,4vw,44px) 16px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:.78rem;color:var(--ink3);pointer-events:none;background:linear-gradient(0deg,var(--bg) 28%,transparent)}
-.herohint b{color:var(--gold2);font-family:var(--disp);font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}
-.herohint .stat{display:flex;flex-direction:column;line-height:1.15}
-.legendrow{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto}
-.legendrow span{display:inline-flex;align-items:center;gap:6px}
-.ld{width:10px;height:10px;border-radius:3px}
-
-/* node detail popover */
-#nodeinfo{position:absolute;z-index:5;max-width:260px;background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;box-shadow:0 20px 50px rgba(0,0,0,.55);pointer-events:none;opacity:0;transition:opacity .15s;font-size:.84rem}
-#nodeinfo.on{opacity:1}
-#nodeinfo h5{margin:0 0 3px;font-size:.95rem;color:#fff}
-#nodeinfo .tag{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan2)}
-#nodeinfo p{margin:6px 0 0;color:var(--ink2);font-size:.82rem}
-.maptoggle{position:absolute;z-index:4;top:18px;right:clamp(16px,4vw,44px);display:flex;background:var(--panel);border:1px solid var(--line2);border-radius:10px;overflow:hidden;pointer-events:auto}
-.mt{background:transparent;border:none;color:var(--ink2);font-size:.78rem;font-weight:600;padding:8px 15px;cursor:pointer;font-family:var(--sans)}
-.mt.on{background:var(--gold);color:#0a0d14}
-.covlegend{position:absolute;z-index:4;top:60px;right:clamp(16px,4vw,44px);display:none;gap:14px;background:rgba(20,27,43,.72);border:1px solid var(--line2);border-radius:9px;padding:7px 12px;font-size:.72rem;color:var(--ink2);pointer-events:none}
-.covlegend.on{display:flex}
-.covlegend span{display:inline-flex;align-items:center;gap:6px}
-.covlegend i{width:9px;height:9px;border-radius:2px;display:inline-block}
-
-/* sections */
-main{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
-section{padding:64px 0;border-bottom:1px solid var(--line)}
-.eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
-h2{font-family:var(--disp);font-weight:600;font-size:clamp(1.7rem,3vw,2.4rem);margin:.25em 0 .1em;color:#fff;letter-spacing:-.01em;text-wrap:balance}
-.lead{color:var(--ink2);max-width:74ch;font-size:1.05rem;margin:.5em 0 1.6em}
-h3{font-size:1.05rem;color:#fff;margin:26px 0 12px;font-weight:700}
-.grid{display:grid;gap:16px}
-.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:18px 20px;transition:border-color .2s,transform .2s}
-.card:hover{border-color:var(--line2);transform:translateY(-2px)}
-.card h4{margin:0 0 5px;font-size:1.02rem;color:#fff}
-.card .meta{font-size:.76rem;color:var(--gold2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.card p{font-size:.9rem;color:var(--ink2);margin:.35em 0}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
-.c-built{background:var(--good-bg);color:var(--good)} .c-partial{background:var(--warn-bg);color:var(--warn)}
-.c-none{background:var(--crit-bg);color:var(--crit)} .c-planned{background:#1a2440;color:var(--info)}
-.c-navy{background:#1a2440;color:var(--cyan2)} .c-gold{background:#332811;color:var(--gold2)}
-
-/* coverage matrix */
-.cov-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.cbtn{padding:7px 13px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink2);font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px}
-.cbtn .d{width:9px;height:9px;border-radius:50%}
-.cbtn.on{background:var(--panel2);color:#fff;border-color:var(--gold)}
-.covgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.cov{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:12px;padding:13px 15px;transition:.2s}
-.cov.built{border-left-color:var(--good)} .cov.partial{border-left-color:var(--warn)}
-.cov.none{border-left-color:var(--crit)} .cov.planned{border-left-color:var(--info)}
-.cov h4{margin:0 0 6px;font-size:.94rem;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.cov p{margin:0;font-size:.8rem;color:var(--ink3)}
-.cov .v2{font-size:.78rem;color:var(--ink2);margin-top:6px}
-.cov .v2 b{color:var(--ink)}
-.covbar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin:2px 0 20px;border:1px solid var(--line)}
-.covbar span{display:block}
-
-/* expandable */
-details.x{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
-details.x>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;gap:12px;align-items:center;font-weight:600;color:#fff}
-details.x>summary::-webkit-details-marker{display:none}
-details.x>summary .tw{margin-left:auto;color:var(--gold);font-size:1.2rem;transition:transform .2s;flex:none}
-details.x[open]>summary .tw{transform:rotate(45deg)}
-details.x>summary .lbl{font-family:var(--mono);font-size:.66rem;padding:3px 8px;border-radius:6px;background:var(--bg2);color:var(--ink3);flex:none}
-details.x .body{padding:2px 18px 18px;border-top:1px solid var(--line);color:var(--ink2);font-size:.92rem}
-details.x .body ul{padding-left:1.15em;margin:.5em 0}
-details.x .body li{margin:.3em 0}
-details.x .body code{background:var(--bg2);padding:.1em .4em;border-radius:5px;color:var(--cyan2)}
-.flow{display:flex;overflow-x:auto;gap:0;padding:8px 0 14px}
-.fn{flex:none;min-width:112px;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
-.fn .ft{font-size:.8rem;font-weight:700;color:#fff}
-.fn .fs{font-size:.66rem;color:var(--ink3);font-family:var(--mono)}
-.fn.src{border-color:var(--cyan)} .fn.sink{border-color:var(--gold)}
-.far{align-self:center;color:var(--gold);padding:0 4px;flex:none}
-.steps{counter-reset:s;list-style:none;padding:0}
-.steps li{counter-increment:s;position:relative;padding:6px 0 6px 32px;border-left:1px solid var(--line2);margin-left:9px}
-.steps li::before{content:counter(s);position:absolute;left:-12px;top:5px;width:23px;height:23px;border-radius:50%;background:var(--panel2);border:1px solid var(--gold);color:var(--gold2);font-size:.7rem;font-weight:700;display:grid;place-items:center;font-family:var(--mono)}
-.note{border-left:2px solid var(--gold);background:rgba(227,169,78,.07);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:.88rem;color:var(--gold2)}
-.note.crit{border-color:var(--crit);background:rgba(240,102,79,.08);color:#f4a291}
-.src{font-size:.7rem;color:var(--ink3);font-family:var(--mono)}
-.tw-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
-table{border-collapse:collapse;width:100%;font-size:.85rem}
-th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
-th{background:var(--bg2);color:var(--ink2);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
-tbody tr:hover{background:var(--panel2)}
-.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.fbar input{flex:1;min-width:180px;padding:9px 13px;border:1px solid var(--line2);border-radius:9px;background:var(--bg2);color:var(--ink);font-size:.88rem}
-.pill{font-family:var(--mono);font-size:.72rem;padding:4px 10px;border-radius:7px;background:var(--bg2);border:1px solid var(--line2);cursor:pointer;color:var(--ink2)}
-.pill.on{background:var(--gold);color:#0a0d14;border-color:var(--gold)}
-.hidden{display:none!important}
-.foot{padding:50px 0 40px;color:var(--ink3);font-size:.8rem;max-width:80ch}
-mark{background:rgba(227,169,78,.28);color:#fff;border-radius:3px;padding:0 2px}
-
-/* ===== mobile (must come after base rules to win on source order) ===== */
-@media(max-width:640px){
-  .top{gap:8px;padding:10px 14px}
-  .logo{font-size:1rem}
-  .tsearch{width:88px}.tsearch:focus{width:120px}
-  .hero{height:calc(100svh - 49px);min-height:560px}
-  .herobadge{display:none!important}
-  .maptoggle{top:12px;left:12px;right:auto}
-  .mt{font-size:.72rem;padding:7px 13px}
-  .covlegend{top:56px;left:12px;right:auto;font-size:.62rem;gap:9px;padding:6px 10px;flex-wrap:wrap;max-width:calc(100% - 24px)}
-  .maplegend{bottom:14px;left:12px;right:12px;font-size:.64rem;gap:10px;padding:7px 12px;justify-content:center}
-  #nodeinfo{max-width:calc(100vw - 32px)}
+#view-domain *{box-sizing:border-box}
+#view-domain{scroll-behavior:smooth}
+#view-domain{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+@media (prefers-reduced-motion:reduce){#view-domain{scroll-behavior:auto}
+#view-domain *{animation-duration:.001s!important}
 }
+#view-domain a{color:var(--gold2);text-decoration:none}
+#view-domain code,#view-domain .mono{font-family:var(--mono);font-size:.85em}
+#view-domain .top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;padding:12px clamp(16px,4vw,44px);background:rgba(10,13,20,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+#view-domain .logo{font-family:var(--disp);font-weight:600;font-size:1.12rem;letter-spacing:.2px;color:#fff;white-space:nowrap}
+#view-domain .logo b{color:var(--gold)}
+#view-domain .topnav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+#view-domain .topnav a{padding:6px 11px;border-radius:8px;color:var(--ink2);font-size:.82rem;font-weight:500}
+#view-domain .topnav a:hover{background:var(--panel2);color:#fff}
+#view-domain .topnav a.active{background:var(--gold);color:#0a0d14}
+#view-domain .tsearch{padding:7px 12px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);font-size:.85rem;width:170px}
+#view-domain .tsearch:focus{outline:2px solid var(--gold);width:220px}
+@media(max-width:820px){#view-domain .topnav{display:none}
+#view-domain .tsearch{width:120px}
+}
+#view-domain .hero{position:relative;height:calc(100vh - 53px);min-height:480px;border-bottom:1px solid var(--line);overflow:hidden}
+#view-domain #net{position:absolute;inset:0;width:100%;height:100%;display:block}
+#view-domain .herobadge{position:absolute;z-index:3;top:18px;left:clamp(16px,4vw,44px);display:inline-flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--cyan2);border:1px solid var(--line2);background:rgba(20,27,43,.72);padding:6px 13px;border-radius:20px;font-weight:600;pointer-events:none;max-width:calc(100% - 30px)}
+#view-domain .maplegend{position:absolute;z-index:3;bottom:22px;left:clamp(16px,4vw,44px);display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:.74rem;color:var(--ink2);pointer-events:none;background:rgba(20,27,43,.78);border:1px solid var(--line2);border-radius:22px;padding:9px 17px}
+#view-domain .maplegend span{display:inline-flex;align-items:center;gap:7px}
+#view-domain .badge{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan2);border:1px solid var(--line2);background:rgba(20,27,43,.6);padding:5px 12px;border-radius:20px;font-weight:600}
+#view-domain .badge .pulse{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(72,214,232,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(72,214,232,.5)}70%{box-shadow:0 0 0 9px rgba(72,214,232,0)}100%{box-shadow:0 0 0 0 rgba(72,214,232,0)}}
+#view-domain h1{font-family:var(--disp);font-weight:600;font-size:clamp(2.3rem,5.4vw,4rem);line-height:1.02;margin:.4em 0 .3em;letter-spacing:-.015em;color:#fff;text-wrap:balance}
+#view-domain h1 em{font-style:normal;color:var(--gold)}
+#view-domain .sub{font-size:clamp(1rem,1.6vw,1.22rem);color:var(--ink2);max-width:60ch}
+#view-domain .herohint{position:absolute;z-index:2;bottom:0;left:0;right:0;margin:0;padding:34px clamp(16px,4vw,44px) 16px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:.78rem;color:var(--ink3);pointer-events:none;background:linear-gradient(0deg,var(--bg) 28%,transparent)}
+#view-domain .herohint b{color:var(--gold2);font-family:var(--disp);font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}
+#view-domain .herohint .stat{display:flex;flex-direction:column;line-height:1.15}
+#view-domain .legendrow{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto}
+#view-domain .legendrow span{display:inline-flex;align-items:center;gap:6px}
+#view-domain .ld{width:10px;height:10px;border-radius:3px}
+#view-domain #nodeinfo{position:absolute;z-index:5;max-width:260px;background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;box-shadow:0 20px 50px rgba(0,0,0,.55);pointer-events:none;opacity:0;transition:opacity .15s;font-size:.84rem}
+#view-domain #nodeinfo.on{opacity:1}
+#view-domain #nodeinfo h5{margin:0 0 3px;font-size:.95rem;color:#fff}
+#view-domain #nodeinfo .tag{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan2)}
+#view-domain #nodeinfo p{margin:6px 0 0;color:var(--ink2);font-size:.82rem}
+#view-domain .maptoggle{position:absolute;z-index:4;top:18px;right:clamp(16px,4vw,44px);display:flex;background:var(--panel);border:1px solid var(--line2);border-radius:10px;overflow:hidden;pointer-events:auto}
+#view-domain .mt{background:transparent;border:none;color:var(--ink2);font-size:.78rem;font-weight:600;padding:8px 15px;cursor:pointer;font-family:var(--sans)}
+#view-domain .mt.on{background:var(--gold);color:#0a0d14}
+#view-domain .covlegend{position:absolute;z-index:4;top:60px;right:clamp(16px,4vw,44px);display:none;gap:14px;background:rgba(20,27,43,.72);border:1px solid var(--line2);border-radius:9px;padding:7px 12px;font-size:.72rem;color:var(--ink2);pointer-events:none}
+#view-domain .covlegend.on{display:flex}
+#view-domain .covlegend span{display:inline-flex;align-items:center;gap:6px}
+#view-domain .covlegend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+#view-domain main{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
+#view-domain section{padding:64px 0;border-bottom:1px solid var(--line)}
+#view-domain .eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+#view-domain h2{font-family:var(--disp);font-weight:600;font-size:clamp(1.7rem,3vw,2.4rem);margin:.25em 0 .1em;color:#fff;letter-spacing:-.01em;text-wrap:balance}
+#view-domain .lead{color:var(--ink2);max-width:74ch;font-size:1.05rem;margin:.5em 0 1.6em}
+#view-domain h3{font-size:1.05rem;color:#fff;margin:26px 0 12px;font-weight:700}
+#view-domain .grid{display:grid;gap:16px}
+#view-domain .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+#view-domain .g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+#view-domain .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:18px 20px;transition:border-color .2s,transform .2s}
+#view-domain .card:hover{border-color:var(--line2);transform:translateY(-2px)}
+#view-domain .card h4{margin:0 0 5px;font-size:1.02rem;color:#fff}
+#view-domain .card .meta{font-size:.76rem;color:var(--gold2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+#view-domain .card p{font-size:.9rem;color:var(--ink2);margin:.35em 0}
+#view-domain .chip{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+#view-domain .c-built{background:var(--good-bg);color:var(--good)}
+#view-domain .c-partial{background:var(--warn-bg);color:var(--warn)}
+#view-domain .c-none{background:var(--crit-bg);color:var(--crit)}
+#view-domain .c-planned{background:#1a2440;color:var(--info)}
+#view-domain .c-retired{background:#1b2231;color:#8494ab}
+#view-domain .c-navy{background:#1a2440;color:var(--cyan2)}
+#view-domain .c-gold{background:#332811;color:var(--gold2)}
+#view-domain .cov-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+#view-domain .cbtn{padding:7px 13px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink2);font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px}
+#view-domain .cbtn .d{width:9px;height:9px;border-radius:50%}
+#view-domain .cbtn.on{background:var(--panel2);color:#fff;border-color:var(--gold)}
+#view-domain .covgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+#view-domain .cov{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:12px;padding:13px 15px;transition:.2s}
+#view-domain .cov.built{border-left-color:var(--good)}
+#view-domain .cov.partial{border-left-color:var(--warn)}
+#view-domain .cov.none{border-left-color:var(--crit)}
+#view-domain .cov.planned{border-left-color:var(--info)}
+#view-domain .cov h4{margin:0 0 6px;font-size:.94rem;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#view-domain .cov p{margin:0;font-size:.8rem;color:var(--ink3)}
+#view-domain .cov .v2{font-size:.78rem;color:var(--ink2);margin-top:6px}
+#view-domain .cov .v2 b{color:var(--ink)}
+#view-domain .covbar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin:2px 0 20px;border:1px solid var(--line)}
+#view-domain .covbar span{display:block}
+#view-domain details.x{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
+#view-domain details.x>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;gap:12px;align-items:center;font-weight:600;color:#fff}
+#view-domain details.x>summary::-webkit-details-marker{display:none}
+#view-domain details.x>summary .tw{margin-left:auto;color:var(--gold);font-size:1.2rem;transition:transform .2s;flex:none}
+#view-domain details.x[open]>summary .tw{transform:rotate(45deg)}
+#view-domain details.x>summary .lbl{font-family:var(--mono);font-size:.66rem;padding:3px 8px;border-radius:6px;background:var(--bg2);color:var(--ink3);flex:none}
+#view-domain details.x .body{padding:2px 18px 18px;border-top:1px solid var(--line);color:var(--ink2);font-size:.92rem}
+#view-domain details.x .body ul{padding-left:1.15em;margin:.5em 0}
+#view-domain details.x .body li{margin:.3em 0}
+#view-domain details.x .body code{background:var(--bg2);padding:.1em .4em;border-radius:5px;color:var(--cyan2)}
+#view-domain .flow{display:flex;overflow-x:auto;gap:0;padding:8px 0 14px}
+#view-domain .fn{flex:none;min-width:112px;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
+#view-domain .fn .ft{font-size:.8rem;font-weight:700;color:#fff}
+#view-domain .fn .fs{font-size:.66rem;color:var(--ink3);font-family:var(--mono)}
+#view-domain .fn.src{border-color:var(--cyan)}
+#view-domain .fn.sink{border-color:var(--gold)}
+#view-domain .far{align-self:center;color:var(--gold);padding:0 4px;flex:none}
+#view-domain .steps{counter-reset:s;list-style:none;padding:0}
+#view-domain .steps li{counter-increment:s;position:relative;padding:6px 0 6px 32px;border-left:1px solid var(--line2);margin-left:9px}
+#view-domain .steps li::before{content:counter(s);position:absolute;left:-12px;top:5px;width:23px;height:23px;border-radius:50%;background:var(--panel2);border:1px solid var(--gold);color:var(--gold2);font-size:.7rem;font-weight:700;display:grid;place-items:center;font-family:var(--mono)}
+#view-domain .note{border-left:2px solid var(--gold);background:rgba(227,169,78,.07);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:.88rem;color:var(--gold2)}
+#view-domain .note.crit{border-color:var(--crit);background:rgba(240,102,79,.08);color:#f4a291}
+#view-domain .src{font-size:.7rem;color:var(--ink3);font-family:var(--mono)}
+#view-domain .tw-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+#view-domain table{border-collapse:collapse;width:100%;font-size:.85rem}
+#view-domain th,#view-domain td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+#view-domain th{background:var(--bg2);color:var(--ink2);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#view-domain tbody tr:hover{background:var(--panel2)}
+#view-domain .num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+#view-domain .fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#view-domain .fbar input{flex:1;min-width:180px;padding:9px 13px;border:1px solid var(--line2);border-radius:9px;background:var(--bg2);color:var(--ink);font-size:.88rem}
+#view-domain .pill{font-family:var(--mono);font-size:.72rem;padding:4px 10px;border-radius:7px;background:var(--bg2);border:1px solid var(--line2);cursor:pointer;color:var(--ink2)}
+#view-domain .pill.on{background:var(--gold);color:#0a0d14;border-color:var(--gold)}
+#view-domain .hidden{display:none!important}
+#view-domain .foot{padding:50px 0 40px;color:var(--ink3);font-size:.8rem;max-width:80ch}
+#view-domain mark{background:rgba(227,169,78,.28);color:#fff;border-radius:3px;padding:0 2px}
+
+
+/* ==================== LIVE PIPELINE ==================== */
+#view-live{
+    --bg:#05090f; --panel:#0c1626; --panel2:#0f1c30; --border:#1e2c44;
+    --text:#e9f0fb; --muted:#93a6c4; --faint:#5f7089;
+    --gold:#fcc005; --navy:#001959; --cyan:#22c7dd;
+    --invoice:#3aa0ff; --voucher:#49cf8c; --payment:#fcc005; --analytics:#22c7dd; --bad:#ff5d6c;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+#view-live *{box-sizing:border-box}
+#view-live,#view-live{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
+#view-live #stage{position:fixed;inset:0}
+#view-live canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#view-live .topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:14px;
+    padding:12px 18px;background:linear-gradient(180deg,rgba(4,8,16,.92),rgba(4,8,16,0));z-index:6;pointer-events:none}
+#view-live .brand{font-weight:800;font-size:15px;letter-spacing:.02em}
+#view-live .brand b{color:var(--gold)}
+#view-live .brand small{display:block;font-weight:600;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+#view-live .controls{margin-left:auto;display:flex;gap:8px;align-items:center;pointer-events:auto}
+#view-live .btn{font:inherit;font-size:12.5px;font-weight:650;color:var(--text);background:var(--panel);border:1px solid var(--border);
+    border-radius:8px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px}
+#view-live .btn:hover{border-color:#33507e}
+#view-live .btn.gold{background:var(--gold);color:#1a1400;border-color:var(--gold)}
+#view-live .spd{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 10px}
+#view-live input[type=range]{accent-color:var(--gold);width:82px}
+#view-live .legend{position:absolute;left:0;right:0;bottom:0;z-index:6;display:flex;flex-direction:row;flex-wrap:wrap;gap:5px 18px;align-items:center;justify-content:center;
+    background:linear-gradient(0deg,rgba(6,11,20,.97),rgba(6,11,20,.6));border-top:1px solid var(--border);padding:9px 16px;backdrop-filter:blur(5px)}
+#view-live .legend .lt{font-size:11px;color:var(--muted);font-weight:600;margin-right:6px}
+#view-live .legend .lt b{color:var(--gold)}
+#view-live .lrow{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+#view-live .lrow .dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 8px currentColor}
+#view-live .lrow.off{opacity:.34}
+#view-live .lrow b{color:var(--text);font-weight:600}
+#view-live .lrow .ct{font-variant-numeric:tabular-nums;color:var(--faint);font-size:11px;font-family:var(--mono);margin-left:2px}
+#view-live .panel{position:absolute;top:64px;right:16px;width:340px;max-height:calc(100% - 92px);overflow-y:auto;z-index:7;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:14px;
+    box-shadow:0 20px 60px rgba(0,0,0,.55);padding:0;transform:translateX(376px);transition:transform .32s cubic-bezier(.2,.7,.2,1)}
+#view-live .panel.open{transform:none}
+#view-live .ph{padding:15px 17px 12px;border-bottom:1px solid var(--border);position:relative}
+#view-live .ph .kind{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+#view-live .ph h2{margin:5px 0 0;font-size:19px;font-weight:800;line-height:1.15;letter-spacing:-.01em}
+#view-live .ph .repo{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:5px}
+#view-live .px{position:absolute;top:13px;right:14px;cursor:pointer;color:var(--muted);font-size:19px;line-height:1;border:none;background:none}
+#view-live .pb{padding:14px 17px 18px;display:flex;flex-direction:column;gap:14px}
+#view-live .lab{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:6px}
+#view-live .what{font-size:13.5px;line-height:1.55;color:#d6e2f4}
+#view-live .guard{font-size:12.5px;line-height:1.5;color:var(--gold);background:rgba(252,192,5,.08);border:1px solid rgba(252,192,5,.22);border-radius:8px;padding:9px 11px}
+#view-live .guard b{color:var(--gold)}
+#view-live .files{display:flex;flex-direction:column;gap:5px}
+#view-live .files code{font-family:var(--mono);font-size:11px;color:#cfe0f6;background:#0a1220;border:1px solid var(--border);border-left:3px solid var(--accent,#3aa0ff);border-radius:6px;padding:5px 9px;word-break:break-all;display:block}
+#view-live .files code b{color:#fff}
+#view-live .through{display:flex;flex-wrap:wrap;gap:5px}
+#view-live .through span{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;color:#06101d}
+#view-live .sc{display:flex;flex-direction:column;gap:10px}
+#view-live .scitem{font-size:12.5px;line-height:1.46}
+#view-live .scitem .q{color:#eef4fd;font-weight:700;display:block;margin-bottom:1px}
+#view-live .scitem .a{color:var(--muted)}
+#view-live .scitem.gap{border-left:2px solid var(--gold);padding-left:9px}
+#view-live .scitem.gap .q::after{content:" · GAP";color:var(--gold);font-weight:800;font-size:9.5px;letter-spacing:.08em}
+#view-live .scitem.gap .a{color:#efc879}
+
+
+/* ==================== FLOW ATLAS ==================== */
+#view-atlas{
+    --bg:#05090f;--panel:#0c1626;--panel2:#0f1c30;--border:#1e2c44;--text:#e9f0fb;--muted:#93a6c4;--faint:#5f7089;
+    --gold:#fcc005;--cyan:#22c7dd;--good:#49cf8c;--bad:#ff5d6c;--blue:#3aa0ff;--purple:#b48bff;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+#view-atlas *{box-sizing:border-box}
+#view-atlas,#view-atlas{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5}
+#view-atlas .num{font-variant-numeric:tabular-nums}
+#view-atlas code,#view-atlas .mono{font-family:var(--mono)}
+#view-atlas a{color:var(--blue);text-decoration:none}
+#view-atlas header{background:linear-gradient(180deg,#001959,#0a2a63);border-bottom:3px solid var(--gold);padding:16px 22px 0}
+#view-atlas .brand{font-weight:800;font-size:17px}
+#view-atlas .brand b{color:var(--gold)}
+#view-atlas .brand small{display:block;font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9fb2d4;margin-top:2px}
+#view-atlas .tabs{display:flex;gap:4px;margin-top:14px}
+#view-atlas .tab{font:inherit;font-size:13px;font-weight:700;color:#9fb2d4;background:none;border:none;border-bottom:3px solid transparent;padding:9px 15px;cursor:pointer;margin-bottom:-3px}
+#view-atlas .tab.on{color:#fff;border-bottom-color:var(--gold)}
+#view-atlas .tab .ov{margin-left:auto}
+#view-atlas .headnote{color:#9fb2d4;font-size:12.5px;padding:0 0 12px;max-width:80ch}
+#view-atlas .layout{display:grid;grid-template-columns:236px 1fr;min-height:calc(100vh - 118px)}
+#view-atlas .rail{border-right:1px solid var(--border);padding:12px 10px;overflow-y:auto;background:#081120}
+#view-atlas .railh{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:6px 8px 8px}
+#view-atlas .ri{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--muted);font-weight:600}
+#view-atlas .ri:hover{background:#0e1a2e;color:var(--text)}
+#view-atlas .ri.on{background:#12233c;color:#fff}
+#view-atlas .ri .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 7px currentColor}
+#view-atlas .ri .rt{flex:0 0 auto;font-family:var(--mono);font-size:10px;color:var(--faint);margin-left:auto}
+#view-atlas .main{padding:20px 24px 60px;max-width:980px}
+#view-atlas .mh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+#view-atlas .mh h1{font-size:24px;font-weight:800;margin:0}
+#view-atlas .mh .mrepo{font-family:var(--mono);font-size:12px;color:var(--muted)}
+#view-atlas .mh .mt{margin-left:auto;display:flex;gap:7px}
+#view-atlas .chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--panel);border:1px solid var(--border);color:var(--muted)}
+#view-atlas .chip.tests{background:rgba(73,201,140,.13);border-color:rgba(73,201,140,.32);color:var(--good)}
+#view-atlas .chip.live{background:rgba(58,160,255,.13);border-color:rgba(58,160,255,.32);color:var(--blue)}
+#view-atlas .mdesc{color:var(--muted);font-size:13.5px;margin:8px 0 4px;max-width:82ch}
+#view-atlas .stripwrap{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:13px;padding:8px;margin:16px 0 22px;overflow-x:auto}
+#view-atlas canvas{display:block;width:100%;height:132px}
+#view-atlas .stage{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;scroll-margin-top:14px}
+#view-atlas .stage.hl{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+#view-atlas .sth{padding:12px 15px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border);background:#0a1424}
+#view-atlas .sth .sn{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;color:#06101d;flex:0 0 auto}
+#view-atlas .sth h3{margin:0;font-size:15.5px;font-weight:700}
+#view-atlas .sth .sk{font-size:11px;color:var(--faint);margin-left:auto;text-transform:uppercase;letter-spacing:.06em}
+#view-atlas .stb{padding:13px 15px 16px;display:grid;gap:13px}
+#view-atlas .lab{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:6px}
+#view-atlas .what{font-size:13.5px;color:#d6e2f4;max-width:84ch}
+#view-atlas .guard{font-size:12.5px;color:var(--gold);background:rgba(252,192,5,.07);border:1px solid rgba(252,192,5,.2);border-radius:8px;padding:9px 11px;max-width:84ch}
+#view-atlas .guard b{color:var(--gold)}
+#view-atlas .files{display:flex;flex-direction:column;gap:4px}
+#view-atlas .files code{font-family:var(--mono);font-size:11px;color:#cfe0f6;background:#0a1220;border:1px solid var(--border);border-left:3px solid var(--sa,#3aa0ff);border-radius:6px;padding:4px 9px;word-break:break-all;display:block}
+#view-atlas .files code b{color:#fff}
+#view-atlas .sc{display:grid;gap:9px}
+#view-atlas .scitem{font-size:12.5px;line-height:1.46;border-left:2px solid #24324a;padding-left:10px}
+#view-atlas .scitem .q{color:#eef4fd;font-weight:700;display:block;margin-bottom:1px}
+#view-atlas .scitem .a{color:var(--muted)}
+#view-atlas .scitem.gap{border-left-color:var(--gold)}
+#view-atlas .scitem.gap .q::after{content:" · GAP";color:var(--gold);font-weight:800;font-size:9.5px;letter-spacing:.08em}
+#view-atlas .scitem.gap .a{color:#efc879}
+@media(max-width:760px){#view-atlas .layout{grid-template-columns:1fr}
+#view-atlas .rail{border-right:none;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:4px}
+#view-atlas .railh{width:100%}
+}
+
+
+
+/* ---- UNIFIED CHROME — one identity (the shell header); each view docks a slim context bar, no duplicate titles ---- */
+#view-domain,#view-atlas{padding-top:54px}               /* body scrolls these; the fixed 54px header clears */
+#view-live{position:fixed;top:54px;left:0;right:0;bottom:0;height:auto;overflow:hidden}
+#view-live #stage{position:absolute;inset:0}
+
+/* kill each view's redundant identity — the shell IS the identity now */
+#view-domain .logo{display:none!important}
+#view-live .brand{display:none!important}
+#view-atlas .brand,#view-atlas .headnote,#view-atlas .tab.ov{display:none!important}
+
+/* DOMAIN — its section nav + search become the context bar flush under the header */
+#view-domain .top{position:fixed!important;top:54px!important;left:0;right:0;padding:9px clamp(16px,4vw,44px)!important;background:#080f1d!important;border-bottom:1px solid rgba(252,192,5,.14)!important;backdrop-filter:none!important;z-index:60}
+#view-domain{padding-top:104px!important}   /* clear the 54px shell header + the fixed sub-nav */
+#view-domain .topnav{margin-left:0!important}
+
+/* LIVE — brand hidden; Fit/Pause/Speed already dock top-right below the header */
+#view-live .topbar{padding:10px 18px!important}
+
+/* ATLAS — collapse the big navy title block into a slim sticky context bar (keep By-flow/By-app) */
+#view-atlas header{background:#080f1d!important;border-bottom:1px solid rgba(252,192,5,.14)!important;padding:0 22px!important;position:sticky;top:54px;z-index:60}
+#view-atlas .tabs{margin-top:0!important;padding:8px 0!important}
+/* atlas rail must not slide under the sticky bar — give it a solid bg + top offset */
+#view-atlas .rail{background:#081120!important;position:sticky;top:100px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;z-index:30}
+
 </style>
 
+<div id="flash"></div>
+
+<div id="cover">
+  <canvas id="ambient"></canvas>
+  <div class="track"><div class="token"></div></div>
+  <div class="cover-in">
+    <div class="kicker">Werner · Finance V2 · shadow-fed rebuild</div>
+    <h1>One system.<br>Three <em>altitudes</em>.</h1>
+    <div class="thesis">The finance domain from the 30,000-ft map down to a single stage and its edge cases — every dollar accounted for, nothing silently dropped. Descend where you like.</div>
+    <div class="bands">
+      <div class="band" data-view="domain"><span class="bn">30k ft</span><span class="bt">Domain map</span><span class="bd">the whole estate, at a glance</span></div>
+      <div class="band" data-view="live"><span class="bn">10k ft</span><span class="bt">Live pipeline</span><span class="bd">money in motion, source → sink</span></div>
+      <div class="band" data-view="atlas"><span class="bn">ground</span><span class="bt">Flow atlas</span><span class="bd">every stage · every what-if</span></div>
+    </div>
+    <button class="enter" id="enter">Descend ↓</button>
+  </div>
+</div>
+
+<header id="shell-head">
+  <div class="wordmark"><span class="fin">FINANCE</span><span class="v2">V2</span><span class="ex">Explorer</span></div>
+  <nav id="altnav">
+    <button class="alt on" data-view="domain"><span class="ft">30k ft · domain</span><span class="fn">Domain map</span><span class="node"></span></button>
+    <button class="alt" data-view="live"><span class="ft">10k ft · pipeline</span><span class="fn">Live pipeline</span><span class="node"></span></button>
+    <button class="alt" data-view="atlas"><span class="ft">ground · detail</span><span class="fn">Flow atlas</span><span class="node"></span></button>
+  </nav>
+  <div class="headtag"><span class="liveled"></span>shadow-fed · real code</div>
+</header>
+
+<div class="view active" id="view-domain">
 <div class="top">
   <div class="logo">Finance Domain <b>Map</b></div>
   <nav class="topnav" id="topnav"></nav>
@@ -168,7 +407,7 @@ mark{background:rgba(227,169,78,.28);color:#fff;border-radius:3px;padding:0 2px}
 
 <header class="hero">
   <canvas id="net"></canvas>
-  <div class="herobadge"><span class="pulse"></span><b class="bd-lg">Werner freight estate · 18 apps · hover a node, click to inspect</b><b class="bd-sm">Tap a node to inspect</b></div>
+  <div class="herobadge"><span class="pulse"></span>Werner freight estate · 18 apps · hover a node, click to inspect</div>
   <div id="nodeinfo"></div>
   <div class="maptoggle" id="maptoggle"><button class="mt on" data-m="cur">Current estate</button><button class="mt" data-m="v2">V2 coverage</button></div>
   <div class="covlegend" id="covlegend"><span><i style="background:#3ad29f"></i>built in V2</span><span><i style="background:#e8b74e"></i>partial</span><span><i style="background:#f0664f"></i>no V2 equivalent</span></div>
@@ -181,8 +420,59 @@ mark{background:rgba(227,169,78,.28);color:#fff;border-radius:3px;padding:0 2px}
 
 <main id="content"></main>
 <div class="foot" id="foot"></div>
+</div>
 
-<script>
+<div class="view" id="view-live">
+<div id="stage">
+  <canvas id="map"></canvas>
+  <div class="topbar">
+    <div class="brand">Finance <b>V2</b> · Live Flow Map<small>Werner · source → destination, in motion</small></div>
+    <div class="controls">
+      <button class="btn" id="fit">⤢ Fit</button>
+      <button class="btn" id="pause">⏸ Pause</button>
+      <div class="spd">Speed <input type="range" id="speed" min="0.3" max="2.4" step="0.1" value="1"></div>
+    </div>
+  </div>
+
+  <div class="legend" id="legend">
+    <div class="lt"><b>Click a stage</b> for what happens + code · drag to pan · scroll to zoom &nbsp;|&nbsp; flows:</div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <div class="ph"><span class="kind" id="pKind"></span><button class="px" id="pClose">×</button><h2 id="pName"></h2><div class="repo" id="pRepo"></div></div>
+    <div class="pb">
+      <div><div class="lab">What happens here</div><div class="what" id="pWhat"></div></div>
+      <div id="pGuardWrap"><div class="lab">Guarantee</div><div class="guard" id="pGuard"></div></div>
+      <div id="pScWrap"><div class="lab">Scenarios · what-ifs</div><div class="sc" id="pSc"></div></div>
+      <div id="pFilesWrap"><div class="lab">Code</div><div class="files" id="pFiles"></div></div>
+      <div id="pThruWrap"><div class="lab">Flows through here</div><div class="through" id="pThru"></div></div>
+    </div>
+  </aside>
+</div>
+</div>
+
+<div class="view" id="view-atlas">
+<header>
+  <div class="brand">Finance <b>V2</b> · Flow Atlas<small>Werner · every flow &amp; every app, drawn and explained in depth</small></div>
+  <div class="tabs">
+    <button class="tab on" data-m="flow">By flow</button>
+    <button class="tab" data-m="app">By app</button>
+    <button class="tab ov" data-goto="live" style="color:var(--gold)">◹ Live overview map ↗</button>
+  </div>
+  <div class="headnote" id="headnote"></div>
+</header>
+
+<div class="layout">
+  <div class="rail" id="rail"></div>
+  <div class="main" id="main"></div>
+</div>
+</div>
+
+<script>window.__views=window.__views||{};</script>
+<script>/* DOMAIN MAP */
+(function(){
+let rafId=null,running=false;
+
 /* ============ NETWORK MAP ============ */
 const NODES=[
  // col 0 sources
@@ -219,7 +509,7 @@ const EDGES=[
  ["recon","as400"],["mds","psoft"],["mule","wd"],["mule","bank"],["mule","psoft"]
 ];
 const NT={src:"#48d6e8",app:"#e3a94e",eng:"#f0c074",sink:"#8b7ff0"};
-const COVMAP={mm:"built",as400:"partial",psoft:"none",sf:"none",mkt:"none",xig:"none",ar:"built",ap:"built",ven:"built",bre:"built",price:"none",recon:"none",mds:"partial",mule:"none",wd:"built",plq:"partial",esk:"partial",snow:"partial",tpay:"partial",bank:"none"};
+const COVMAP={mm:"built",as400:"partial",psoft:"none",sf:"none",mkt:"none",xig:"none",ar:"built",ap:"built",ven:"built",bre:"built",price:"built",recon:"partial",mds:"built",mule:"none",wd:"built",plq:"built",esk:"built",snow:"built",tpay:"partial",bank:"none"};
 const COVCOL={built:"#3ad29f",partial:"#e8b74e",none:"#f0664f",planned:"#5aa9e6"};
 let v2mode=false;
 const cv=document.getElementById("net"),ctx=cv.getContext("2d"),info=document.getElementById("nodeinfo");
@@ -227,9 +517,8 @@ let W,H,DPR,pos={},parts=[],hover=null,sel=null,reduce=matchMedia("(prefers-redu
 function layout(){
   DPR=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;
   cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
-  const mob=W<640;
-  const cols=[0,1,2],colX=mob?[W*0.115,W*0.5,W*0.885]:[W*0.13,W*0.5,W*0.87];
-  cols.forEach(c=>{const ns=NODES.filter(n=>n.c===c);const top=H*(mob?0.20:0.15),bot=H*(mob?0.90:0.84),step=(bot-top)/Math.max(ns.length-1,1);
+  const cols=[0,1,2],colX=[W*0.13,W*0.5,W*0.87];
+  cols.forEach(c=>{const ns=NODES.filter(n=>n.c===c);const top=H*0.15,bot=H*0.84,step=(bot-top)/Math.max(ns.length-1,1);
     ns.forEach((n,i)=>{pos[n.id]={x:colX[c],y:ns.length===1?(top+bot)/2:top+i*step}})});
   parts=[];EDGES.forEach((e,i)=>{const dormant=(e[0]==="mkt"||e[1]==="price");const n=dormant?1:2;
     for(let k=0;k<n;k++)parts.push({e:i,t:(k/n)+Math.sin(i*13.7)*0.1,sp:0.0016+((i*7)%5)*0.0004,dormant})});
@@ -241,6 +530,7 @@ function nodeAt(mx,my){for(const n of NODES){const p=pos[n.id];
   if(mx>=lx0&&mx<=lx1&&my>=ly-14&&my<=ly+7)return n}
   return null}
 function draw(){
+  if(!running)return;
   ctx.clearRect(0,0,W,H);
   const active=sel||hover;
   const lit=new Set();if(active){lit.add(active.id);EDGES.forEach(e=>{if(e[0]===active.id)lit.add(e[1]);if(e[1]===active.id)lit.add(e[0])})}
@@ -268,14 +558,10 @@ function draw(){
     ctx.beginPath();ctx.arc(p.x,p.y,active&&active.id===n.id?11:8,0,7);
     ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=active&&lit.has(n.id)?16:8;ctx.fill();ctx.shadowBlur=0;
     ctx.beginPath();ctx.arc(p.x,p.y,active&&active.id===n.id?11:8,0,7);ctx.strokeStyle="rgba(255,255,255,.25)";ctx.lineWidth=1;ctx.stroke();
-    const mob=W<640;
-    ctx.fillStyle=dim?"rgba(150,165,190,.32)":(active&&lit.has(n.id))?"#ffffff":active?"rgba(205,215,232,.5)":"rgba(206,216,233,.72)";ctx.font=(mob?"600 9.5px":"600 11.5px")+" system-ui";ctx.textAlign=n.c===2?"right":n.c===0?"left":"center";
-    const SHORT={price:"Pricing",recon:"Recon",mule:"MuleSoft"};
-    let label=n.l;if(mob){label=SHORT[n.id]||(n.c===1&&n.l.includes(" — ")?n.l.split(" — ")[0]:n.l)}
-    const off=mob?13:16;
-    const tx=n.c===2?p.x-off:n.c===0?p.x+off:p.x;const ty=n.c===1?p.y-16:p.y+4;
-    ctx.fillText(label,tx,ty);ctx.globalAlpha=1});
-  requestAnimationFrame(draw);
+    ctx.fillStyle=dim?"rgba(150,165,190,.32)":(active&&lit.has(n.id))?"#ffffff":active?"rgba(205,215,232,.5)":"rgba(206,216,233,.72)";ctx.font="600 11.5px system-ui";ctx.textAlign=n.c===2?"right":n.c===0?"left":"center";
+    const tx=n.c===2?p.x-16:n.c===0?p.x+16:p.x;const ty=n.c===1?p.y-16:p.y+4;
+    ctx.fillText(n.l,tx,ty);ctx.globalAlpha=1});
+  rafId=requestAnimationFrame(draw);
 }
 function showInfo(n,mx,my){if(!n){info.classList.remove("on");return}
   const cl={built:"c-built",partial:"c-partial",none:"c-none"}[COVMAP[n.id]],lb={built:"built in V2",partial:"partial in V2",none:"no V2 equivalent yet"}[COVMAP[n.id]];
@@ -287,7 +573,8 @@ cv.addEventListener("mousemove",ev=>{const r=cv.getBoundingClientRect();const mx
 cv.addEventListener("mouseleave",()=>{hover=null;if(!sel)info.classList.remove("on")});
 cv.addEventListener("click",ev=>{const r=cv.getBoundingClientRect();const n=nodeAt(ev.clientX-r.left,ev.clientY-r.top);
   sel=(sel&&n&&sel.id===n.id)?null:n;if(sel){showInfo(sel,pos[sel.id].x,pos[sel.id].y)}else info.classList.remove("on")});
-addEventListener("resize",layout);layout();draw();
+addEventListener("resize",layout);
+window.__views=window.__views||{};window.__views.domain={onShow:function(){layout();if(!running){running=true;rafId=requestAnimationFrame(draw);}},onHide:function(){running=false;if(rafId)cancelAnimationFrame(rafId);rafId=null;}};
 document.querySelectorAll(".mt").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".mt").forEach(x=>x.classList.remove("on"));b.classList.add("on");v2mode=b.dataset.m==="v2";document.getElementById("covlegend").classList.toggle("on",v2mode);if(sel)showInfo(sel,pos[sel.id].x,pos[sel.id].y)}));
 
 /* ============ CONTENT ============ */
@@ -296,34 +583,37 @@ document.getElementById("topnav").innerHTML=SECTIONS.map(s=>`<a href="#${s[0]}">
 
 /* coverage: the honest current-vs-V2 map */
 const COV=[
- ["MM customer invoicing (AR)","built","Invoice → hydrate → allocate → Workday + EDI + Esker + Snowflake.","finance-mm-receivables — capture mode, ~400 tests, synthetic."],
- ["MM carrier vouchers (AP)","built","Voucher → vendor → cost allocate → Workday AP.","finance-mm-payables — capture mode, ~352 tests."],
+ ["MM customer invoicing (AR)","built","Invoice → hydrate → allocate → Workday + EDI + Esker + analytics.","finance-mm-receivables — full lifecycle incl. hardened payment loop; 685 tests. Shadow/capture mode."],
+ ["MM carrier vouchers (AP)","built","Voucher → vendor → cost allocate → Workday AP.","finance-mm-payables — incl. ingress validators + cancellations; 494 tests."],
  ["Vendor / supplier creation","built","Missing supplier → enrich → Workday.","In-process subflow in payables."],
- ["Revenue / cost allocation","built","Split a charge across routes; Σ = total.","bre-allocations governed; finance-bre-evaluate only 2 of 7 buckets."],
+ ["Revenue / cost allocation","built","Split a charge across routes; Σ = total.","bre-allocations governed — LIVE on QA Cosmos (:5099), seed verified in-account."],
  ["Company / revenue-cat / legal-entity lookups","built","Governed, UI-editable, fail-closed.","Reference Tables — verified over 6 review rounds."],
- ["EDI-210 routing","built","Envelope → BTC + TMS.","app-bre-edi — but a ~50-rule AS400/BYLR parity gap; least-governed."],
- ["Governance / resiliency / observability","built","Draft→approve→active, DLQ, conservation, tracing.","finance-platform + per-service — shadow only."],
- ["EDI-210 generation & delivery","partial","JSON→XML → PartnerLinQ.","PLQ capture adapter exists; full generation + acks unproven."],
- ["Payment apply / reversal","partial","Paid/PartiallyPaid/Unapplied + reply.","States + reply normalizer built; live reply loop unproven."],
- ["Snowflake analytics feed","partial","Allocation rows → warehouse.","Capture adapter only."],
- ["Esker AR export","partial","OpenAR + OutsidePayment CSV.","Capture adapter; the 4 real Esker/Zoom jobs not reproduced."],
- ["Cancellations / credit-memos","partial","Invoice + voucher cancel.","Cancel seam designed; not end-to-end."],
- ["On-account artificial invoice","none","Synthetic invoice for on-account cash.","No V2 equivalent yet."],
- ["CCSF customer-feed sync","none","Salesforce customers → lookup cache.","No V2 equivalent yet."],
- ["PLQ original-invoice-number / rebill","none","Drives EDI-210 rebill referencing.","No V2 equivalent yet."],
- ["Data-quality incident engine","none","Detect bad data → open incident in MM.","Not built in V2 (and dead-wired in mastery-datasync today)."],
- ["External-flip (OFS)","none","MM Order Financial Status → External.","No V2 equivalent."],
- ["Revenue reconciliation (AS400↔MM)","none","Reconcile trip revenue vs rate lines.","No V2 equivalent."],
- ["Freight pricing engine","none","Buy/sell rate quoting from market data.","Zero V2 equivalent — whole capability."],
- ["FX rate load","none","Xignite → Workday currency rates.","No V2 equivalent."],
- ["Net-book-value / asset load","none","Workday assets → SB.","No V2 equivalent."],
- ["Bank files (BMO / Comdata / GXS)","none","Positive-pay, disbursement, returns.","No V2 equivalent."],
- ["Credit-file → AS400","none","CRI_Customer_Payment_Update → DB2.","No V2 equivalent."],
- ["Salesforce work-order feed","none","Kafka → CSV → Workday.","No V2 equivalent."],
- ["PeopleSoft / O2C billing path","none","RabbitMQ 210-billing → PLQ/TPA.","V2 is MM-only by design."],
- ["Legacy JEDI / X12 (204/210/214/990/997)","none","Frozen legacy translator.","Not addressed."],
- ["accounting-portal / RPS / EFS / TPA","none","Human charge-maintenance back-office.","Not addressed."],
- ["Parity / cutover reconciliation","planned","Match V2 capture vs real output.","app-finance-recon — designed, not built."]
+ ["Governed lookup data (10 tables)","built","blocked-BTC 7,787 · spend 284 · cost 673 · pay-charge 144 · carriers 42 · pay-terms · UDF 524 · pay-method · SCAC · EDI-billing 899.","All seeded from real captured prod rows with row-count parity gates. Replaces the 9-endpoint REST service."],
+ ["EDI-210 routing","built","Envelope → BTC + TMS.","app-bre-edi — a ~50-rule AS400/BYLR parity gap remains to verify."],
+ ["Governance / resiliency / observability","built","Draft→approve→active, park-never-lose, conservation, tracing.","finance-platform + per-service — shadow only."],
+ ["EDI-210 generation & delivery","built","Governed codes → authoritative-XSD-validated XML → PLQ; Sent≠Confirmed via the REAL CIN callback (no 997 exists).","Generation + XSD gate + ack tracking done; live send gated."],
+ ["Payment apply / reversal","built","Match by finEventID; foreign replies audited; misses park — never DLQ.","The 82.7%-dead-letter fix: 8 review findings closed with reproduce-first tests. Live consumer wiring = deploy phase."],
+ ["Delivery kernel + adapters","built","One egress discipline: register-before-send, Sent≠Confirmed, park-never-lose, conservation.","3-round adversarial gate (16 findings fixed). Adapters: Workday · Kafka · Esker · Salesforce — every send hard-gated OFF."],
+ ["Snowflake analytics feed","built","Every invoice state transition → canonical event → Kafka (business-id key) → Snowflake. Replaces Synapse Link.","Fully wired through the vertical: blocked/quarantined docs APPEAR on the wire with reasons (the legacy silent-reject-drop is impossible — named regression); conservation N-transitions→N-deliveries; 874 tests. Send gated."],
+ ["Esker AR export","built","OpenAR + OutsidePayment CSV over SFTP. Replaces the Synapse pipelines.","Adapter with formula-injection guard + host-key fail-closed (both incumbent holes fixed) + rerun dedupe. Cron scheduling = deploy phase; send gated."],
+ ["Cancellations / credit-memos","built","Cancel → governed transmit-vs-skip → idempotent reversal.","Reversal ledger: every cancel lands in exactly one of reversed/skipped/parked."],
+ ["On-account artificial invoice","built","Unmatched payment → deterministic artificial invoice.","OA:{source}:{customer}:{reference} mint — redelivery-safe; governed absorb-vs-park."],
+ ["CCSF customer-feed sync","built","Customer master → cache owned by the AR vertical.","Grounded on the real incumbent DTO; ordering guard; malformed → DLQ."],
+ ["PLQ original-invoice-number / rebill","built","Rebill carries the ORIGINAL invoice CIN.","CIN captured from the real PLQ callback; no lineage → parked, never emitted."],
+ ["Data-quality incident engine","built","Detect bad source data → DELIVERED MM incident → dedup → resolve.","Deliver-or-die (the DummyAccessor silent-drop is impossible); validators wired in both verticals. MM close-endpoint shape flagged for live verify."],
+ ["Unified alerting","built","Zoom + OpsGenie with delivery-probe, throttle, governed $25k threshold.","A silently-400ing Zoom can no longer lose an alert."],
+ ["Freight pricing engine","built","Buy/sell quoting from governed rules + caller-supplied market rates.","app-bre-pricing — own governed app, 2,750 real rows, RUNNING :5097, live-verified. GS/DAT live feed = future seam."],
+ ["Salesforce work-order feed","built","Kafka → 60-col CSV → Workday INT6168.","Adapter on the kernel; the incumbent silent-200 trap is impossible (named regression). Send gated."],
+ ["Parity / cutover reconciliation","built","A-vs-B diff, parity ledger, zero-silent-loss cutover gate.","finance-recon — 89 tests, worked on a real prod wire body. True prod A/B run pending live capture."],
+ ["External-flip (OFS)","retired","MM Order Financial Status → External.","Existed only to hand orders to PeopleSoft billing — retired with it."],
+ ["Revenue reconciliation (AS400↔MM)","retired","Reconcile trip revenue vs rate lines.","AS400 retired."],
+ ["FX rate load","retired","Xignite → Workday currency rates.","Xignite retired."],
+ ["Net-book-value / asset load","retired","Workday truck NBV → ELM.","Equipment domain, not finance (Surya 07-04)."],
+ ["Bank files (BMO / Comdata / GXS)","retired","Positive-pay + card-load files.","BMO file = PeopleSoft check-run output; CLC = iSeries-sourced — both die with their platforms (Surya 07-04). See glossary."],
+ ["Credit-file → AS400","retired","CRI_Customer_Payment_Update → DB2.","AS400 retired."],
+ ["PeopleSoft / O2C billing path","retired","RabbitMQ 210-billing → PLQ/TPA.","PeopleSoft retired; V2 is MM-only by design."],
+ ["Legacy JEDI / X12 (204/210/214/990/997)","retired","Frozen legacy translator.","Retired (Surya 07-04): no future-TMS need."],
+ ["accounting-portal / RPS / EFS / TPA","retired","Human charge-maintenance back-office.","TPA→PeopleSoft; retired with it."]
 ];
 const covCount=k=>COV.filter(c=>c[1]===k).length;
 
@@ -343,11 +633,11 @@ const FLOWS=[
  {t:"Vendor / Supplier Creation",tag:"missing supplier → Workday",cov:"built",
   chain:[["payable","no vendor","src"],["app-finance","TIN/EIN"],["Workday","Submit_Supplier","sink"]],
   steps:["Parked voucher → SB <code>vendor-creation</code> → enrich carrier + TIN/EIN → Workday supplier → resume."],
-  note:"In app-finance the EventHub half is <b>disabled in every env</b>; only SB + HTTP live, and failures are <b>silently swallowed</b>."},
+  note:"In app-finance the EventHub half is <b>disabled in every env</b>; only SB+HTTP live, and failures are <b>silently swallowed</b>."},
  {t:"EDI-210 Routing & Delivery",tag:"→ PartnerLinQ",cov:"partial",
   chain:[["invoice / O2C","envelope","src"],["routing BRE","13 conditions"],["→ BTC+TMS",""],["finance-bridge","JSON→XML"],["PartnerLinQ","","sink"]],
-  steps:["Path A (MM): Kafka <code>EdiInvoiceCreated</code> → app-finance-bridge JSON→XML → PLQ.","Path B (PeopleSoft/O2C): RabbitMQ 210-billing → mule-peoplesoft-int → the production PLQ.","Path C: legacy JEDI X12 (frozen)."],
-  note:"Bridge prod config points PLQ at a <b>non-production endpoint</b>; runtime XML is never XSD-validated; the 'EDI report job' is unbuilt scaffolding."},
+  steps:["Path A (MM): Kafka <code>EdiInvoiceCreated</code> → app-finance-bridge JSON→XML → PLQ.","Path B (PeopleSoft/O2C): RabbitMQ 210-billing → mule-peoplesoft-int → PLQ pod01-prd.","Path C: legacy JEDI X12 (frozen)."],
+  note:"Bridge prod config points PLQ at a <b>dev pod</b>; runtime XML is never XSD-validated; the 'EDI report job' is unbuilt scaffolding."},
  {t:"Payment Apply / Reversal / Reply",tag:"Workday paid → MM",cov:"partial",
   chain:[["Workday","paid","src"],["Kafka payment-events",""],["app-accounting","apply/unapply"],["MM write-back","bridge","sink"]],
   steps:["Payment events apply Paid/PartiallyPaid; a separate consumer detects reversals/unapplied, blocked by 3 rules.","MM write-back matched on correlationId."],
@@ -375,9 +665,9 @@ const RULES=[
 ];
 const MULE=[
  ["Revenue reconciliation","mule-financial-int","AS400↔MM rate-line reconciliation; own 15-code blocklist; order filter startsWith('400'); blockInvoicedOrders flag (fail-open); NO DLQ."],
- ["AS400 program calls","mule-finance-sapi","jt400 program calls + a decimal-fixup regex; a hardcoded payment method; a config-driven route-merge flag; a hardcoded trust-store password."],
+ ["AS400 program calls","mule-finance-sapi","jt400 calls (TSTRPWEBS/BLREVWEBS) + decimal-fixup regex; paymentMethod:'CC'; callBothGetRouteAPIs flag; TLS pw 'changeit' cleartext."],
  ["Workday integration heart","mule-workday-int","FX load (Xignite USDCAD, 4am); net-book-value; bank files (BMO positive-pay, Comdata, GXS); credit-file→AS400 DB2; Salesforce work-order feed; Net_30 default."],
- ["Workday Financials SAPI","mule-workday-financials-sapi","Invoices/suppliers/POs/AP. Bank engine deleted Feb-2024 but creds remain. Ships a committed private key in source (security finding — specifics redacted)."],
+ ["Workday Financials SAPI","mule-workday-financials-sapi","Invoices/suppliers/POs/AP. Bank engine deleted Feb-2024 but creds remain. Ships an unencrypted private key BMO_PRD.ppk (security)."],
  ["PeopleSoft ↔ EDI-210","mule-peoplesoft-int","RabbitMQ 210-billing → EDI-210 mapping; 3 LD flags inconsistent fail-open/closed; STG missing the LD block; NO DLQ."],
  ["GL-identifier & files","mule-finance-invoice-papi · mule-finance-int","getGlIdentifier→DIV3075/DIV4000; 11 SFTP/cron file-transfer flows (Esker AR feeds, PeopleSoft→AS400, iView imaging)."]
 ];
@@ -395,7 +685,7 @@ const DATA=[
  ["Revenue cat","RC0100 / RC0700","Linehaul / Fuel"],["Rate type","MX-* / CHWY-*","Mexico / Chewy-specific"],
  ["SCAC","WVAS/BYLR/WMMI/WEND/WENP","default/Baylor/Intermodal/Dedicated/Van"],["TMS","MM / HOPTEK / ECM","1,414 / 6 / 1 rules"],
  ["TMS (dropped)","AS400 / BYLR","48 + 2 legacy → ZERO in V2"],["Currency","USD / CAD / MXN",""],
- ["Accessorial","Team $200 · Tanker $250","Driver Assist $250 · Hazmat $300"],["Charge","5203 BASE OCEAN","$0.01 dummy trigger"]
+ ["Accessorial","Team $200 · Tanker $250","Driver Assist $250 · Hazmat $300"],["Charge","5203 BASE OCEAN","$0.01 dummy trigger"],["Bank id","ADW38648-SEND","GXS SFTP (leaked key)"]
 ];
 const VOL=[
  ["Invoices / day","~2,800"],["Payments / day","~1,400"],["EDI ops / day","~1,700"],["Vouchers (real)","555,159"],
@@ -406,38 +696,40 @@ const HAZ=[
  ["crit","Silent data loss","~1.56M lost confirmations; ~15k SB dead-letters growing; the ~125-invoice skip-list + finance-sync intake filter drop with no log."],
  ["crit","Invoice→carrier broken","308,172× 'CarrierCode required' in prod — the join lives on the order, and is unbuilt."],
  ["crit","Incidents not delivered","mastery-datasync's incident accessor is a Dummy that never POSTs — the data-quality loop is effectively dead."],
- ["crit","Secrets & PII","Credentials committed in source (a private key + config secrets) and a tax-ID (PII) handling gap — specifics withheld, flagged for remediation."],
+ ["crit","Secrets & PII","Committed unencrypted key BMO_PRD.ppk; plaintext secrets in cde/qa; SSNs forwarded to Workday."],
  ["crit","EDI report job is unbuilt","app-finance-bridge's 'report' references types that don't exist — won't compile."],
- ["warn","Prod pointing at dev / disabled halves","An EDI bridge pointing at a non-prod endpoint; a vendor-creation ingest disabled in all envs, failures swallowed."],
+ ["warn","Prod pointing at dev / disabled halves","Bridge PLQ → dev pod; app-finance EventHub ingest disabled everywhere, failures swallowed."],
  ["warn","Dark observability","42k exceptions/7d hidden behind 193 green requests; ~330k/wk from health-check infra; probes return 200 unconditionally; the EDI evaluate path emits zero trace."],
  ["warn","Migration parity gap","~50 legacy AS400/BYLR routing rules absent from the V2 seed; parity gate only diffed SQLite→Cosmos."],
  ["warn","Messy Cosmos","4 fragmented accounts; hot-partition keys; voucher data duplicated; audit co-mingled, no TTL; an 'Exception' field set on 540,736 successful vouchers."],
  ["info","Dead code & landmines","Orphaned egress-bypass; NotImplemented publishers; a mock-response baked into a prod util; commented-out idempotency gate; Windows tz ids that throw on Linux."]
 ];
 const V2=[
- ["finance-mm-receivables","AR — 12-state machine, 3 normalizers, one BRE call, 4 capture adapters, correlation-wait, shadow-parity. ~400 tests, synthetic."],
- ["finance-mm-payables","AP — 12-state machine, in-process vendor subflow, 8 governed rule sets. ~352 tests."],
- ["bre-allocations","Allocation engine — 7 buckets + 3 rule types, governed Reference Tables + Revenue Matrix, 2-layer conservation, OTel."],
- ["finance-bre-evaluate","Greenfield rules runtime — only 2 of 7 allocation buckets implemented so far."],
+ ["★ BUILD STATUS — BUILD-COMPLETE 2026-07-04","Every planned V2 build item is DONE. All 6 components live in code: ingress (incl. the 308k CarrierCode fix) · AR + AP lifecycles · rules platform (allocation + 10 lookups + pricing, all real-data parity-gated) · DELIVERY KERNEL (3-round adversarial gate) with 4 adapters, every send hard-gated OFF · ops spine (incidents deliver-or-die, AlertRouter, finance-recon zero-silent-loss cutover gate) · analytics wired (silent-reject-drop impossible). THREE APPS RUNNING in the canonical bre-edi look: pricing :5097 (full rule view/edit UX), console :5098, allocations :5099 (QA Cosmos). All local branches, nothing pushed. Remaining = human authority only: rotate BMO_PRD.ppk+updated-ta.ppk, TriumphPay data-source + live captures, push approvals, live-send flips; then the deploy phase. Ledger: agent-plans/finance/v2-completion/2026-07-04-session-synthesis.md. RETIRED: AS400 · PeopleSoft (+external-flip/O2C/TPA/BMO positive-pay) · Xignite · JEDI · CLC/Comdata · NBV(equipment). TECH-REPLACED: Synapse→cron+ChangeFeed→Kafka · Mule→direct .NET ▲ PRODUCTION CERTIFICATION (2026-07-05): all 6 capabilities certified live against real Cosmos/real prod data across 587 use cases — and the campaign completed a full production-certification campaign (587 use cases, all 6 areas certified live vs real Cosmos/prod data — W1 unit-audit + W2 live + W3 residuals all done) and found + fixed 15 REAL defects the ~2,900 green in-process unit tests hid, several direct financial-loss bugs (silent revenue mis-distribution in allocation priority rules; parked deliveries silently TTL-expiring = evidence loss; a negative payment driving paidToDate to -100). Verdict: CONDITIONALLY CERTIFIED — do NOT flip live-send gates until the blocker list clears (real captures for recon/payment-reply/cancel, the payment-reply consumer + MM-cancel + Workday-supplier wiring, 5 unseeded pricing rule sets + TriumphPay source, and the D4 ttl=-1 adoption in every prod delivery store). Full report: agent-plans/finance/v2-certification/CERTIFICATION.md."],
+ ["finance-mm-receivables","AR — 12-state machine, 3 normalizers, one BRE call, 4 capture adapters, correlation-wait, shadow-parity. NEW 07-04: payment-reply loop HARDENED (the dead-letter fix — foreign replies audited, misses parked, never DLQ'd; 8 adversarial-review findings fixed with reproduce-first tests) + governed AR lookups seeded from real captures (payment-terms 15 · UDF 524 · payment-method 30 · SCAC 7 rules · EDI-billing 899). AR lifecycle DONE 07-04: on-account artificial invoice (deterministic OA:{source}:{customer}:{reference} mint — redelivery-safe), CIN-based rebill (no lineage → parked, never emitted), AR incident validators at ingress (652 tests, 96.9% cov). EDI-210 generation DONE + WIRE-TRUTH CORRECTED 07-04: governed codes (Yard Storage→999, VAN NETWORK→WENP), authoritative MasteryInvoice.xsd embedded (swap exposed + fixed real conformance bugs; both captured prod docs validate in-suite), ack = the REAL PLQ CIN callback (exact incumbent PlqCinRequest DTO — no 997 exists), Sent≠Confirmed. Plus CCSF customer cache on the grounded incumbent DTO (ordering guard, malformed→DLQ). 685 tests."],
+ ["finance-mm-payables","AP — 12-state machine, in-process vendor subflow, governed rule sets. NEW 07-04: all AP lookups seeded from real captured prod data with row-count parity gates (spend 284 · cost-center 673 · blocked-BTC 7,787 · payment-charge 144 · allowed-carriers 42) + data-quality incident validators at ingress (bad vouchers park as SourceDataQualityBlocked, incident DELIVERED to MM — kills the silent DummyAccessor). Cancellations DONE 07-04: grounded on the real MM CreditMemoed vocabulary, transmit-vs-skip via the cancel-transmission governed rule, deterministic reversal ledger (redelivered cancel never double-reverses), every cancel lands in exactly one of reversed/skipped/parked. 494 tests."],
+ ["bre-allocations","Allocation engine — 7 buckets + 3 rule types, governed Reference Tables + Revenue Matrix, 2-layer conservation, OTel. NEW 07-04: running against REAL QA Cosmos (seed verified in-account: 1 version · 26 rules · 10 matrix bands · 197 reference lookups)."],
+ ["app-bre-pricing (NEW, own app)","BUILT 07-04 per Surya's decision — freight pricing as its own standalone governed app (bre-allocations pattern): the 7 governed rule sets (2,750 real rows, byte-identical captures), invariant-checked engine, approval UI (author≠approver even for seeding), Test-a-Price page, POST /evaluate/pricing, full rule VIEW/EDIT UX (browse the 2,414-row geo set paged+filtered, clone-to-Draft, edit/add/delete with typed validation, approve author≠approver at version AND row level, row audit), and a Version Management experience SCREEN-IDENTICAL to bre-allocations (4-step explainer, gold CTAs, Active card with per-kind stat tiles — screenshot-verified side by side) while keeping per-set approvals. 396 tests, canonical bre-edi shell, per-build cache-buster. RUNNING at :5097 — live-verified: real evaluation returns the full buy/sell ladder with 7 version stamps; malformed requests fail closed with typed reasons. 341 tests. The earlier EF prototype preserved untouched at _legacy-prototype/."],
+ ["finance-bre-evaluate","Greenfield rules runtime — 2 of 7 allocation buckets. NEW 07-04: FREIGHT-PRICING rule domain foundation — 2,750 real OpenRules rows seeded into 7 governed rule sets (parity-gated), pure PricingEngine with buy/sell-ladder + margin-floor invariants, golden E2E hand-computed from real rows, market rates behind IMarketRatesSource (fail-closed on stale). 298 tests. The un-replaced half of the business engine now has its V2 foundation."],
  ["app-bre-edi","EDI routing — 1,421 rules; least-governed (IsActive only, no trace on evaluate)."],
- ["finance-platform","Shared contracts + delivery FSM + analyzers + governance reference (not a runtime lib)."],
+ ["finance-platform","Shared contracts + delivery FSM + analyzers + governance reference. NEW 07-04: data-quality INCIDENTS capability (deliver-or-die MM sink, DB-enforced dedup, resolve-on-correction) + unified ALERT ROUTER (Zoom+OpsGenie, synthetic delivery-probe vs the silent-400, fingerprint throttle, governed $25k threshold). DELIVERY KERNEL ACCEPTED 07-04 — one egress discipline for ALL finance deliveries: register-before-send, Sent≠Confirmed with real-ack matching, park-never-lose, Superseded corrections, conservation ledger. Survived a 3-round adversarial gate (2 independent reviewers + closure re-verification, attacks executed against the compiled code; 16 real findings fixed with reproduce-first tests). 459 tests green. Thin adapters (Workday/Esker/banks/PLQ/Snowflake) now build on it instead of 5 bespoke paths."],
  ["finance-console","Read-only observability + control plane; real data providers still stubbed (mock)."],
- ["app-finance-recon (planned)","Captures real output (A) vs V2 capture (B), gates cutover. Not built."]
+ ["finance-recon","BUILT 07-04 — the cutover-gate harness: canonical A-vs-B diff generalized from receivables ShadowParity (money-is-exact, typed mismatch classes), append-only parity ledger, CUTOVER GATE = N consecutive passing runs with ZERO silent loss (100% parity + one dropped record still refuses — tested). Worked flow on a REAL prod EDI-210 wire body; true prod A/B pair needs live capture (flagged). 89 tests, 97% cov. Local repo."]
 ];
-const GLOSS=[["AR","Accounts Receivable — customer invoicing."],["AP","Accounts Payable — carrier vouchers."],["BRE","Business Rules Engine."],["BTC","Bill-To-Code (EDI routing output)."],["TMS","Transportation Management System / MasterMind."],["SCAC","Standard Carrier Alpha Code."],["OFS","Order Financial Status (the 'external flip')."],["Greenscreens / DAT","Market-rate feeds for pricing."],["RaaS","Workday Report-as-a-Service."],["DLQ","Dead-Letter Queue."],["PLQ","PartnerLinQ — emits EDI-210."],["EDI-210","X12 freight-invoice document."],["CIN","PLQ's original-invoice-number (drives rebills)."],["jt400","Java library calling AS400 RPG programs."],["NBV","Net Book Value (Workday asset load)."],["Voucher","A carrier-payable (the AP unit)."],["Hydrate","Enrich an event before egress."],["Capture mode","V2 stores its would-be output instead of sending it."],["Correlation-wait","A store (not a DLQ) holding events until their partner arrives — the 1.56M fix."],["Shadow parity","Matching V2's capture to the real output before cutover."],["finbre","app-accounting-bre-v2 (C#/SQL allocation)."],["JEDI","Legacy X12 204/210/214/990/997 translator."]];
+const GLOSS=[["BMO positive-pay (RETIRED)","Anti-check-fraud control: a daily file to Bank of Montreal listing every legitimately-issued check (number/amount/payee) so the bank refuses anything not on the list; DPAY_RETURN = the bank's exception file back. The file is produced by PEOPLESOFT check-run batches (VAS_BMO_* share) — the Mule flows only courier it. PeopleSoft retired ⇒ nothing to send; a future Workday check run would use a native Workday↔bank integration, not a V2 port."],["CLC / Comdata (RETIRED)","Comdata = fleet-payments provider (fuel + driver payment cards). The CLC file is a fixed-width 148-char daily upload to Comdata's SFTP that LOADS money onto driver/fleet cards (advances, reimbursements). Its source is a live iSeries (AS400-family) DB2 table — a retired platform. Any future card-load feed would source from Workday/payroll — a new decision, not a port."],["NBV / asset load (OUT OF SCOPE)","Net-book-value of trucks from a Workday report, delivered to the EQUIPMENT (ELM) domain for truck-sales pricing. Workday→equipment — not a finance obligation."],["AR","Accounts Receivable — customer invoicing."],["AP","Accounts Payable — carrier vouchers."],["BRE","Business Rules Engine."],["BTC","Bill-To-Code (EDI routing output)."],["TMS","Transportation Management System / MasterMind."],["SCAC","Standard Carrier Alpha Code."],["OFS","Order Financial Status (the 'external flip')."],["Greenscreens / DAT","Market-rate feeds for pricing."],["RaaS","Workday Report-as-a-Service."],["DLQ","Dead-Letter Queue."],["PLQ","PartnerLinQ — emits EDI-210."],["EDI-210","X12 freight-invoice document."],["CIN","PLQ's original-invoice-number (drives rebills)."],["jt400","Java library calling AS400 RPG programs."],["NBV","Net Book Value (Workday asset load)."],["Voucher","A carrier-payable (the AP unit)."],["Hydrate","Enrich an event before egress."],["Capture mode","V2 stores its would-be output instead of sending it."],["Correlation-wait","A store (not a DLQ) holding events until their partner arrives — the 1.56M fix."],["Shadow parity","Matching V2's capture to the real output before cutover."],["finbre","app-accounting-bre-v2 (C#/SQL allocation)."],["JEDI","Legacy X12 204/210/214/990/997 translator."]];
 
 /* ============ RENDER ============ */
 const E=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
 const M=document.getElementById("content");
 function sec(id,eye,t,lead,nodes){const s=E("section");s.id=id;s.innerHTML=`<div class="eyebrow">${eye}</div><h2>${t}</h2>${lead?`<p class="lead">${lead}</p>`:""}`;nodes.forEach(n=>s.appendChild(n));M.appendChild(s)}
 const WRAP=h=>E("div",null,h);
-const covClass={built:"c-built",partial:"c-partial",none:"c-none",planned:"c-planned"};
-const covLabel={built:"built in V2",partial:"partial",none:"not yet",planned:"planned"};
+const covClass={built:"c-built",partial:"c-partial",none:"c-none",planned:"c-planned",retired:"c-retired"};
+const covLabel={built:"built in V2",partial:"partial",none:"not yet",planned:"planned",retired:"retired — dead system"};
 
 /* coverage */
-{ const total=COV.length,b=covCount("built"),p=covCount("partial"),n=covCount("none"),pl=covCount("planned");
-  const bar=WRAP(`<div class="covbar"><span style="flex:${b};background:var(--good)"></span><span style="flex:${p};background:var(--warn)"></span><span style="flex:${pl};background:var(--info)"></span><span style="flex:${n};background:var(--crit)"></span></div>`);
-  const ctrl=E("div","cov-controls");ctrl.innerHTML=`<span class="cbtn on" data-c="ALL">All ${total}</span><span class="cbtn" data-c="built"><span class="d" style="background:var(--good)"></span>Built ${b}</span><span class="cbtn" data-c="partial"><span class="d" style="background:var(--warn)"></span>Partial ${p}</span><span class="cbtn" data-c="planned"><span class="d" style="background:var(--info)"></span>Planned ${pl}</span><span class="cbtn" data-c="none"><span class="d" style="background:var(--crit)"></span>Not yet ${n}</span>`;
+{ const total=COV.length,b=covCount("built"),p=covCount("partial"),n=covCount("none"),pl=covCount("planned"),r=covCount("retired");
+  const bar=WRAP(`<div class="covbar"><span style="flex:${b};background:var(--good)"></span><span style="flex:${p};background:var(--warn)"></span><span style="flex:${pl};background:var(--info)"></span><span style="flex:${n};background:var(--crit)"></span><span style="flex:${r};background:#5a6b82"></span></div>`);
+  const ctrl=E("div","cov-controls");ctrl.innerHTML=`<span class="cbtn on" data-c="ALL">All ${total}</span><span class="cbtn" data-c="built"><span class="d" style="background:var(--good)"></span>Built ${b}</span><span class="cbtn" data-c="partial"><span class="d" style="background:var(--warn)"></span>Partial ${p}</span><span class="cbtn" data-c="planned"><span class="d" style="background:var(--info)"></span>Planned ${pl}</span><span class="cbtn" data-c="none"><span class="d" style="background:var(--crit)"></span>Not yet ${n}</span><span class="cbtn" data-c="retired"><span class="d" style="background:#5a6b82"></span>Retired ${r}</span>`;
   const grid=E("div","covgrid");COV.forEach(([t,st,cur,v2])=>{const c=E("div","cov "+st);c.dataset.c=st;c.dataset.s=(t+" "+cur+" "+v2).toLowerCase();
     c.innerHTML=`<h4>${t}<span class="chip ${covClass[st]}">${covLabel[st]}</span></h4><p>${cur}</p><div class="v2"><b>V2:</b> ${v2}</div>`;grid.appendChild(c)});
   sec("coverage",`The honest question — does V2 do everything?`,"Not yet. Here's exactly what's built, partial, and missing.",
@@ -496,13 +788,620 @@ document.getElementById("foot").innerHTML=`Werner Finance Domain — live map. B
 
 /* nav + search */
 const links=[...document.querySelectorAll(".topnav a")],byId=Object.fromEntries(links.map(a=>[a.getAttribute("href").slice(1),a]));
-new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove("active"));byId[e.target.id]&&byId[e.target.id].classList.add("active")}}),{rootMargin:"-25% 0px -70% 0px"}).observe&&document.querySelectorAll("section").forEach(s=>{const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove("active"));byId[e.target.id]&&byId[e.target.id].classList.add("active")}}),{rootMargin:"-25% 0px -70% 0px"});o.observe(s)});
+links.forEach(a=>a.addEventListener("click",ev=>{ev.preventDefault();const id=a.getAttribute("href").slice(1),el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});try{history.replaceState(null,"","#"+id)}catch(e){}}));
+function updateActive(){var cur=null,line=124;document.querySelectorAll("#view-domain section").forEach(function(s){if(s.getBoundingClientRect().top<=line)cur=s.id;});links.forEach(function(l){l.classList.remove("active")});if(cur&&byId[cur])byId[cur].classList.add("active");}
+window.addEventListener("scroll",updateActive,{passive:true});updateActive();
 const q=document.getElementById("q");let searchWasEmpty=true;
 q.addEventListener("input",()=>{const v=q.value.trim().toLowerCase();
   document.querySelectorAll(".flow-item,.rule-item,.mule-item,.guard-item,.hz-item,.v2-item,.gl-item,.drow,.cov").forEach(el=>{el.classList.toggle("hidden",v&&!(el.dataset.s||el.textContent).toLowerCase().includes(v))});
   document.querySelectorAll("section").forEach(s=>{if(!v){s.classList.remove("hidden");return}const items=s.querySelectorAll(".flow-item,.rule-item,.mule-item,.guard-item,.hz-item,.v2-item,.gl-item,.drow,.cov");if(!items.length){s.classList.remove("hidden");return}s.classList.toggle("hidden",![...items].some(el=>!el.classList.contains("hidden")))});
   if(v&&searchWasEmpty){M.scrollIntoView({behavior:"smooth",block:"start"})}searchWasEmpty=!v;
 });
+
+})();
+</script>
+<script>/* LIVE PIPELINE */
+(function(){
+let rafId=null,running=false;
+
+const cv=document.getElementById("map"),ctx=cv.getContext("2d");
+let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+const WW=1240,WH=760,NW=132,NH=44;
+let view={s:1,ox:0,oy:0},userAdjusted=false;
+function fitView(){const top=62,bot=Math.min(96,H*.16),side=26;const aw=Math.max(60,W-side*2),ah=Math.max(60,H-top-bot);view.s=Math.min(aw/WW,ah/WH);view.ox=(W-WW*view.s)/2;view.oy=top+(ah-WH*view.s)/2}
+function toWorld(sx,sy){return{x:(sx-view.ox)/view.s,y:(sy-view.oy)/view.s}}
+function resize(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);if(!userAdjusted)fitView()}
+window.addEventListener("resize",resize);
+
+// ---- flow color families ----
+const FC={invoice:"#3aa0ff",voucher:"#49cf8c",payment:"#fcc005",analytics:"#22c7dd",bad:"#ff5d6c",load:"#7bd0ff"};
+
+// ---- nodes: normalized 0..1 positions, scaled to canvas ----
+// kind drives fill; nx,ny normalized; w,h in px
+const N={
+ mmInv:{nx:.05,ny:.16,label:"MM Invoice",kind:"source"},
+ mmLoad:{nx:.05,ny:.34,label:"MM Load-Financial",kind:"source"},
+ mmVou:{nx:.05,ny:.55,label:"MM Voucher",kind:"source"},
+ mmPay:{nx:.05,ny:.72,label:"MM Payment / Reply",kind:"source"},
+ feeds:{nx:.05,ny:.88,label:"CCSF · Salesforce",kind:"source"},
+
+ ingress:{nx:.22,ny:.30,label:"Ingress · normalize",kind:"stage"},
+ gate:{nx:.335,ny:.16,label:"Incident gate",kind:"ops"},
+ join:{nx:.335,ny:.44,label:"Join ↔ load-fin",kind:"stage"},
+ apply:{nx:.335,ny:.72,label:"Payment apply",kind:"stage"},
+ park:{nx:.30,ny:.90,label:"Park · correlation-wait",kind:"park"},
+
+ allocate:{nx:.52,ny:.44,label:"Allocate (BRE)",kind:"stage"},
+ vhyd:{nx:.52,ny:.62,label:"Voucher hydrate",kind:"stage"},
+ engines:{nx:.52,ny:.14,label:"Rules engines",kind:"engine"},
+
+ edigen:{nx:.66,ny:.34,label:"EDI-210 · XSD",kind:"stage"},
+ kernel:{nx:.79,ny:.5,label:"Delivery kernel",kind:"kernel"},
+ ops:{nx:.55,ny:.86,label:"Incidents · Alerts",kind:"ops"},
+
+ workday:{nx:.945,ny:.22,label:"Workday",kind:"dest"},
+ plq:{nx:.945,ny:.40,label:"PartnerLinQ",kind:"dest"},
+ esker:{nx:.945,ny:.58,label:"Esker SFTP",kind:"dest"},
+ kafka:{nx:.945,ny:.76,label:"Kafka → Snowflake",kind:"dest"},
+ recon:{nx:.80,ny:.90,label:"Recon · cutover gate",kind:"gate"},
+};
+const KIND={
+ source:{fill:"#132743",stroke:"#2b4a72"},
+ stage:{fill:"#15243d",stroke:"#2c4a6e"},
+ ops:{fill:"#3a1622",stroke:"#7a2e3f"},
+ park:{fill:"#3a2a12",stroke:"#7a5a1f"},
+ engine:{fill:"#241a3a",stroke:"#4a3a72"},
+ kernel:{fill:"#123a2e",stroke:"#2f7a5f"},
+ dest:{fill:"#0f2f4a",stroke:"#2f6a9a"},
+ gate:{fill:"#2a2233",stroke:"#5a4a6a"},
+};
+
+// ---- edges (visual pipes) ----
+const E=[
+ ["mmInv","ingress"],["mmLoad","ingress"],["mmVou","ingress"],["mmPay","ingress"],["feeds","ingress"],
+ ["ingress","gate"],["ingress","join"],["ingress","apply"],
+ ["gate","join"],["gate","ops"],
+ ["join","park"],["park","join"],
+ ["join","allocate"],["ingress","vhyd"],
+ ["allocate","engines"],["allocate","edigen"],["allocate","kernel"],["vhyd","kernel"],
+ ["edigen","kernel"],
+ ["kernel","workday"],["kernel","plq"],["kernel","esker"],["kernel","kafka"],
+ ["apply","kernel"],["kernel","apply"],
+ ["workday","recon"],["plq","recon"],["kafka","recon"],
+ ["ops","kernel"],
+];
+
+// ---- token flows (ordered node paths) ----
+const FLOWS=[
+ {id:"invoice",color:FC.invoice,every:900,path:["mmInv","ingress","gate","join","allocate","edigen","kernel","plq"]},
+ {id:"invoice",color:FC.invoice,every:2600,park:true,path:["mmInv","ingress","gate","join","park","join","allocate","edigen","kernel","plq"]},
+ {id:"load",color:FC.load,every:1500,path:["mmLoad","ingress","join"]},
+ {id:"voucher",color:FC.voucher,every:1300,path:["mmVou","ingress","gate","vhyd","kernel","workday"]},
+ {id:"payment",color:FC.payment,every:1700,path:["mmPay","ingress","apply","kernel","plq"]},
+ {id:"analytics",color:FC.analytics,every:1100,path:["kernel","kafka"]},
+ {id:"bad",color:FC.bad,every:4200,path:["mmInv","ingress","gate","ops"]},
+];
+const FLOWMETA={invoice:{label:"Customer invoice",c:FC.invoice},load:{label:"Load-financial",c:FC.load},voucher:{label:"Carrier voucher",c:FC.voucher},payment:{label:"Payment / reply",c:FC.payment},analytics:{label:"Analytics event",c:FC.analytics},bad:{label:"Bad data → incident",c:FC.bad}};
+const flowOff={}; // isolate toggles
+const counts={};
+
+// ---- node detail (grounded in code maps) ----
+const INFO={
+ mmInv:{kind:"Source · MasterMind",repo:"Kafka topic",what:"A customer-invoice event lands from MasterMind. The wire carries charges and an order number — but NO carrier, routes, or miles (those arrive separately on the load-financial event).",files:[]},
+ mmLoad:{kind:"Source · MasterMind",repo:"topic …-loadfin-01",what:"The load-financial event — this is where carrier, routes, and miles actually live. It's the partner an invoice waits for.",files:[]},
+ mmVou:{kind:"Source · MasterMind",repo:"finance-mm-payables",what:"A carrier-voucher event — the AP unit. Drives the voucher lifecycle to Workday AP.",files:[]},
+ mmPay:{kind:"Source · MasterMind",repo:"finance-mm-receivables",what:"A payment, or MasterMind's reply to a payment we posted. Replies match back to the invoice by the finEventID we stamped before sending.",files:[]},
+ feeds:{kind:"Source · reference feeds",repo:"CCSF · Salesforce",what:"CCSF customer-master events keep the customer cache fresh; Salesforce work-orders flow out to Workday. Both are normalized and fail closed on a bad key.",files:[["Customers/Ccsf/CcsfCustomerFeed.cs","CcsfCustomerNormalizer"]]},
+ ingress:{kind:"Stage · ingress",repo:"finance-mm-receivables / -payables",what:"Every source event is decoded, de-duplicated against the idempotency ledger, and turned into a canonical domain event. This is where 'the same message twice' stops being a problem.",guard:"Conservation starts here: every event will land in <b>exactly one</b> bucket — progressed, blocked, quarantined, waiting, or deduped.",files:[["MmIngress/ · Ingest/","canonical normalizers"]]},
+ gate:{kind:"Ops · incident gate",repo:"Incidents/Validation/",accent:FC.bad,what:"Source-data validators run BEFORE the record enters the pipeline. A fuel-surcharge that should've been stripped, a zero per-unit route, a legal-entity/country mismatch — each opens a delivered MasterMind incident and parks the record.",guard:"<b>Deliver-or-die:</b> a bad record can't flow in silently — it blocks as SourceDataQualityBlocked and the incident is really POSTed to MM (the legacy DummyAccessor is gone).",files:[["Incidents/Validation/InvoiceIngressValidationGate.cs","InvoiceIngressValidationGate"],["reference/incidents/src/Sink/MasterMindIncidentSink.cs","MasterMindIncidentSink"]]},
+ join:{kind:"Stage · the 308k fix",repo:"finance-mm-receivables",accent:FC.invoice,what:"The invoice is joined to its load-financial event to get carrier/routes/miles. If the load hasn't arrived yet, the invoice parks in correlation-wait keyed order:{orderNumber} and re-matches when the load shows up.",guard:"A missing CarrierCode parks <b>Blocked</b> here with a named reason — it never reaches the BRE. This killed 308,172 identical 'CarrierCode required' failures a day.",files:[["Pipeline/InvoicePipeline.cs","TryJoinOrderAsync · MergeLoadAsync"],["Pipeline/CorrelationWaitSweeper.cs","CorrelationWaitSweeper"]]},
+ apply:{kind:"Stage · payments",repo:"finance-mm-receivables",accent:FC.payment,what:"A payment applies to its invoice (paid-to-date, with currency and non-positive guards). A payment for a not-yet-emitted invoice parks instead of dead-lettering. Replies match by finEventID; a reply matching nothing is audited as foreign, never poison.",guard:"<b>Never DLQ a miss:</b> the 82.7% dead-letter storm was foreign replies — now they're parked/audited, not lost.",files:[["Pipeline/InvoicePipeline.cs","ProcessPaymentReplyAsync · ApplyReplyToCallbackAsync"]]},
+ park:{kind:"Holding · never dropped",repo:"correlation-wait store",accent:FC.gold,what:"The waiting room. Invoices awaiting a load, payments awaiting an invoice, deliveries awaiting an ack — all held here with their full payload and re-driven when their partner arrives. This is a store, not a dead-letter queue.",guard:"The dominant Werner failure mode is <b>silent loss</b>. Nothing here is ever silently dropped — it's held and re-entered.",files:[["Pipeline/CorrelationWaitSweeper.cs","re-match sweeper"]]},
+ allocate:{kind:"Stage · rating",repo:"→ bre-allocations",accent:"#7bd0ff",what:"Calls the allocation engine: each route gets a Workday division/region and every rate line is split across routes. A hard post-condition then verifies Σ splits = the total, to the cent.",guard:"<b>Conservation invariant:</b> Σ allocated must equal the total or it throws (HTTP 500) — never a partial, silently-wrong split.",files:[["Evaluator/DecisionTableEvaluator.cs","DecisionTableEvaluator"],["Evaluator/AllocationConservation.cs","AllocationConservation"]]},
+ vhyd:{kind:"Stage · voucher hydrate",repo:"finance-mm-payables",accent:FC.voucher,what:"The voucher's checkpointed hydration: currency, order/route read-model, cost lines, BRE splits, spend-category + cost-center, the blocked-bill-to + TriumphPay payment gate, legal-entity, and the in-process Workday vendor create.",guard:"Every governed gate <b>fails closed</b> with no approved version — an empty blocklist must be an explicitly approved empty version.",files:[["Pipeline/VoucherPipeline.cs","VoucherPipeline · RunPaymentGateStageAsync"],["Pipeline/VendorSubflow.cs","VendorSubflow (in-process)"]]},
+ engines:{kind:"Rules engines · governed",repo:"3 apps",accent:"#b48bff",what:"Three governed BRE apps consulted at rating/routing time: bre-allocations (revenue split), app-bre-pricing (buy/sell freight ladder, 7 rule sets), app-bre-edi (EDI-210 routing → BTC + TMS). Every rule set is versioned Draft→Approve→Active with author≠approver.",guard:"Rules are <b>governed data</b>, not code — UI-editable, approved, effective-dated, and fail-closed on a miss.",files:[["app-bre-pricing · PricingEngine.cs","7 rule sets, sell≥buy"],["app-bre-edi · RuleEngineService.cs","most-specific match"]]},
+ edigen:{kind:"Stage · EDI-210",repo:"finance-mm-receivables",accent:FC.invoice,what:"Generates the outbound EDI-210 using the governed edi-billing and SCAC lookups, renders the XML, and validates it against the authoritative PLQ XSD before anything is sent.",guard:"<b>XSD gate:</b> a malformed 210 is blocked, not sent (this validation doesn't exist today). Sent ≠ Confirmed until the real PLQ CIN callback returns.",files:[["Egress/Edi/Edi210GenerationService.cs","Edi210GenerationService"],["Egress/Edi/Edi210XsdValidator.cs","Edi210XsdValidator"]]},
+ kernel:{kind:"The delivery kernel · shared discipline",repo:"finance-platform (copy-and-own)",accent:"#49cf8c",what:"NOT a central service — a copy-and-own reference. The platform holds the blessed source; EACH vertical copies it into its own code and runs its OWN instance for its OWN destinations (receivables' Delivery/ folder is its copy). This node is drawn once for clarity, but physically there's a kernel inside each app. A conformance test-pack keeps every copy honest.",guard:"Wherever it runs it enforces the same law: <b>register-before-send · Sent≠Confirmed · park-never-lose · conservation.</b> A crash leaves a visible, retriable row; terminal states never flip; nothing is ever DLQ'd.",files:[["reference/delivery/src/StateMachine/DeliveryKernel.cs","DeliveryKernel (blessed template)"],["finance-mm-receivables/Delivery/","the vertical's own copy"]]},
+ ops:{kind:"Ops spine",repo:"finance-platform",accent:FC.bad,what:"Incidents (deliver-or-die to MasterMind, dedup, resolve-on-correction) and the AlertRouter (Zoom + OpsGenie with a synthetic delivery-probe that catches a silently-dead channel, storm throttle, governed $25k threshold).",guard:"A silently-400ing Zoom can no longer lose an alert — the probe verifies real delivery and fails over.",files:[["reference/alerting/src/AlertRouter.cs","AlertRouter · SyntheticAlertProbe"]]},
+ workday:{kind:"Destination · ERP",repo:"platform · Workday adapter",accent:"#5aa9e6",what:"Customer invoices + AP + supplier creates post to Workday as bsvc SOAP XML, grounded on the incumbent's own mapping, with the W1 idempotency triple. Confirms only on a real bsvc response.",guard:"<b>Gated OFF by default</b> — capture mode parks every send until you flip SendEnabled with real credentials.",files:[["adapters/Workday/WorkdayXmlSerializer.cs","WorkdayXmlSerializer"],["adapters/Workday/WorkdaySoapTransport.cs","WorkdaySoapTransport"]]},
+ plq:{kind:"Destination · EDI partner",repo:"finance-mm-receivables",accent:FC.invoice,what:"The EDI-210 goes to PartnerLinQ. It stays 'Sent' until PLQ returns the CIN callback {orderNumber, invoiceNumber, billToCode} — the real confirmation (there is no 997). The CIN also drives rebills.",guard:"No-ack-in-window escalates to ConfirmGap; a foreign CIN is audited. Sent is never assumed delivered.",files:[["Egress/Edi/Edi210AckTracker.cs","Edi210AckTracker + PlqCinCallback"]]},
+ esker:{kind:"Destination · SFTP",repo:"platform · Esker adapter",accent:"#49cf8c",what:"OpenAR / OutsidePayment CSVs go to Esker over SFTP — the incumbent's exact columns, plus a formula-injection guard it lacks and fail-closed host-key verification. Replaces the Synapse pipelines.",guard:"A blank host-key fingerprint <b>refuses to send</b> (the incumbent trusts anything); hostile CSV cells are neutralized.",files:[["adapters/Esker/EskerCsvSerializer.cs","EskerCsvSerializer · GuardAndQuote"],["adapters/Esker/SftpTransport.cs","SftpTransport"]]},
+ kafka:{kind:"Destination · analytics",repo:"platform · Kafka adapter",accent:FC.analytics,what:"Every invoice state change becomes a canonical analytics event, keyed by the business document id (not a random GUID), produced to Kafka → Snowflake. Blocked/quarantined docs appear on the wire too. Replaces Synapse Link.",guard:"The legacy silent-reject-drop is <b>impossible</b> — rejects are events, not vanished rows.",files:[["adapters/Kafka/CanonicalFinancialEventSerializer.cs","CanonicalFinancialEventSerializer"],["Analytics/KernelAnalyticsPublisher.cs","KernelAnalyticsPublisher"]]},
+ recon:{kind:"Cutover gate",repo:"finance-recon",accent:"#f0a83c",what:"Compares real incumbent output (A) against V2's capture (B), field by field, under per-flow policies. Accumulates parity scorecards and decides — per flow — whether it's safe to cut over.",guard:"A flow is eligible only after N clean runs with <b>zero silent loss</b>. 99.9% parity with one dropped record is a refusal. The flip stays human.",files:[["src/…Recon/Diffing/DiffEngine.cs","DiffEngine"],["src/…Recon/Gate/CutoverGate.cs","CutoverGate"]]},
+};
+
+// ---- scenarios / what-ifs (grounded in the real code; [q,a] or [q,a,"gap"]) ----
+const SC={
+ mmLoad:[["Arrives before its invoice?","Fine — it's upserted to ILoadFinancialStore keyed by orderNumber and waits there; the invoice joins it on arrival. An order-independent rendezvous, not a one-way wait."]],
+ ingress:[
+  ["Duplicate / redelivered event?","The eventId is a hash over the version-stripped stream, so redelivery — even across a v2→v3 topic cutover — dedups downstream. Offset commits only after the produce ack (at-least-once)."],
+  ["Malformed / truncated payload?","PayloadDecoder throws PoisonMessageException (decode / json / gunzip); the raw bytes go to the per-flow DLQ with reason headers and the lane continues — never silently."],
+  ["Binary Avro / wrong SR header?","The magic byte + schema id is stripped and recorded; if the rest isn't JSON it's poisoned to the DLQ, not guessed at."],
+  ["Every event accounted for?","Each message → exactly one of {canonical produce, DLQ}; the pipeline ledger then lands it in progressed / blocked / suppressed / quarantined / waiting / deduped."]],
+ gate:[
+  ["A bad record?","Deliver-or-die incident POSTed to MasterMind + the record parks SourceDataQualityBlocked (full payload, replayable) — it never flows in."],
+  ["The same bad record twice?","Atomic Cosmos claim (create→409): exactly one POST; the rest just ++occurrenceCount."],
+  ["The incident POST fails / times out?","Throws IncidentDeliveryException, releases the claim so a retry can redeliver, and propagates loud — no synthetic success."],
+  ["A corrected re-feed?","The validator passes → the MM incident is closed; the idempotency ledger (before the gate) stops a redelivery reopening it."],
+  ["POST ok but the MM-id never persisted?","Resolve is skipped with a 'needs manual reconciliation' warning; the incident stays Open — human-dependent.","gap"]],
+ join:[
+  ["Invoice arrives first?","No load yet → parks in correlation-wait order:{orderNumber} (Waiting), Blocked(awaiting-load-financial)."],
+  ["LOAD arrives first?","ProcessLoadFinancialEventAsync upserts a LoadFinancialRecord keyed by orderNumber, then RematchParkedInvoicesForOrderAsync resumes any parked invoice. An invoice that arrives with the load already present merges immediately — order-independent."],
+  ["Neither / never arrives?","The sweeper age-alerts at 24h and escalates the aged wait to quarantine WITH full payload before the 30d store TTL (the LoadFinancial container itself is 90d). Never TTL-into-loss."],
+  ["A duplicate load event?","The upsert (Id = orderNumber) is idempotent. But loads aren't eventId-deduped — a redelivery re-counts In()/Progressed(); state stays correct, conservation counts inflate.","gap"],
+  ["Missing CarrierCode?","Parks Blocked('missing-CarrierCode') right here — never reaches the BRE. This is the 308k/day fix."]],
+ apply:[
+  ["Payment before its invoice exists?","Parks in correlation-wait (the 1.56M black-hole fix) and applies when the invoice reaches Emitted — or mints an on-account invoice if a governed rule authorizes it."],
+  ["Zero / negative amount?","Quarantined ('non-positive-payment-amount'); never applied. Credits exist only as guarded reversals."],
+  ["A reply matching nothing (foreign)?","Parked, then the sweep writes the full envelope to a durable foreign-reply audit — never a DLQ."],
+  ["A redelivered / contradicting reply?","A terminal callback (Confirmed / ReplyError) dedups — no overwrite, no flip; an ETag race also dedups."],
+  ["On-account: parent / customer name?","OnAccountInvoiceFactory carries only the payment's customer CODE — it does not read the CCSF cache, so parent / name / billTo are absent on the absorbed doc.","gap"]],
+ park:[
+  ["What re-drives a parked item?","Four paths: invoice→Emitted (parked payments), load arrival (parked invoices), callback register (early replies), invoice arrival (early cancels)."],
+  ["The partner never comes?","Age-alerts at 24h (order/payment waits → quarantine w/ payload); replies age to ForeignReplyIgnored; MM callbacks age to AwaitingCallbackStale at 48h — never a silent TTL loss."],
+  ["Crash / restart while parked?","Durable — parked items live in the Cosmos correlation-wait container; sweeps re-drive after restart; the stage runner is crash-resume idempotent."],
+  ["A store or a queue?","A store (Cosmos, 30d TTL) with an age alert that fires before the TTL — explicitly not a DLQ. One poison entry can't abort a sweep tick (head-of-line isolation)."]],
+ edigen:[
+  ["A charge with no governed EDI code?","Parks (ParkedAtGeneration) fail-closed + Critical alert; nothing is emitted."],
+  ["An XSD-invalid render?","Blocked by the XSD validator + Critical alert, not sent — the gate the current system lacks."],
+  ["Sent, but no CIN callback in window?","The sweep flips Sent→ConfirmGap ('no-cin-in-window') + review alert. Sent ≠ Confirmed."],
+  ["A foreign CIN?","Recorded to the durable foreign-audit + alert (Unmatched); an order/billTo disagreement is a suspect CorroborationMismatch, rows untouched."]],
+ feeds:[
+  ["Customer not in cache on hydrate (MISS)?","Fail-closed — parks Block('missing-customer'), auto-resumes when the customer arrives. No default customer is ever fabricated."],
+  ["The cache on restart?","Durable — Cosmos container customer-cache, PK /customerCode, NO TTL. The in-memory impl is tests-only."],
+  ["Out-of-order CCSF events?","Offset guard: an older offset is StaleIgnored (never overwrites newer); a cross-partition token → poison → DLQ (fail-closed)."],
+  ["A malformed event?","The normalizer poisons it (map / validate); a blank billToCode → DLQ. No partial upsert."]],
+ allocate:[
+  ["Σ splits ≠ total?","Two layers: the engine force-distributes any sub-cent delta by miles, then AllocationConservation.Verify asserts EXACT decimal equality per rate-line or throws (HTTP 500). A partial split never returns 200."],
+  ["A remainder with no route to absorb it?","Honest failure — IsSuccessful=false, '$X could not be allocated — order has no routes'. The sub-cent silent-drop hole is closed."],
+  ["A division-conditioned priority rule?","Fixed — the Division key is now injected into the priority context; omitting it silently killed those rules (they fell to the Percentage default). Caught live in certification (Case B)."],
+  ["No covering version as-of the date?","Not handled in the evaluator — as-of version resolution lives upstream of these files.","gap"]],
+ vhyd:[
+  ["Duplicate / redelivered voucher?","Deduped only at a SETTLED state with the EventId applied; a redelivery of an in-flight event re-drives rather than rejects (no silent loss)."],
+  ["A failure mid-hydration?","Replays from checkpoints, not a full re-run — each sub-step guards on IsDone; EventIds are marked applied only at the settled state, so a mid-flight failure stays replayable."],
+  ["Carrier has no supplier / missing TIN?","No supplier → VendorPending (create in-process); missing TIN → hard typed failure (VendorFailed), never the silent USA-EIN default."],
+  ["A governed gate with no approved version?","Fails closed (RuleSetUnavailable) — an empty blocklist must be an explicitly approved empty version."]],
+ engines:[
+  ["Pricing: market rates missing / stale?","Fail-closed, typed — Missing / MissingCaptureTimestamp / Stale (>60 min). A cached-yesterday rate is never served as fresh."],
+  ["Pricing: one of the 7 sets has no version?","The whole evaluation fails closed (422) listing the gaps — pricing never runs on a partial rule estate."],
+  ["Pricing: a ladder with sell < buy?","PricingInvariants.Verify throws (500) — the margin-floor and ordering invariants reject it; never returned."],
+  ["EDI routing: no rule matches?","A valid 200 'no match', not an error — most-specific match, older id wins on ties."]],
+ kernel:[
+  ["Crash between register and send?","Register-before-send leaves a visible Registered row; the sweep parks aged Registered as 'register-stalled' — nothing was transported, replay-safe."],
+  ["16 concurrent duplicate requests?","Exactly ONE sends — the ETag claim wins; the other 15 are Deduped."],
+  ["A stale-ETag write against a Confirmed record?","Refused at the STORE (hard-terminal never flips), not just in kernel code."],
+  ["Retries exhausted?","Parks (FailedParked) with the full payload + alert, replayable — never a DLQ, never a rethrow."],
+  ["Ack matching nothing / a late ack?","No-match → durable foreign-ack audit; a real late ack still confirms a SentUnconfirmed (never auto-assumed delivered)."],
+  ["A correction supersedes a parked v1?","Direction-safe — only siblings registered strictly before the anchor are Superseded; a supersede that raced a live send audits the wire outcome (CRITICAL)."]],
+ workday:[
+  ["SendEnabled = false (gated)?","Transport returns transient → the kernel parks with full payload; default is capture-mode on all four adapters. Never fake-confirms."],
+  ["A 2xx with a Fault / proxy splash?","Not confirmed — it requires the real WWS response root; Validation_Fault → quarantine; W1 'cannot be resubmitted' → transient (it may already be in Workday, not poison)."]],
+ esker:[
+  ["A blank SFTP host-key fingerprint?","Fail-closed — refuses to send (the incumbent trusted anything). A live mismatch pages a human, never auto-trusts."],
+  ["A formula-injection CSV cell?","Neutralized — a leading = + - @ TAB CR is prefixed with ' (plain numbers exempt, so -183.42 stays byte-identical)."]],
+ kafka:[
+  ["Key = business id or GUID?","The business documentId — every event for one entity is on one partition, ordered (retires the legacy random-GUID key)."],
+  ["A blocked / quarantined doc?","Still emitted as a state event with its reason — the legacy silent-reject-drop is impossible. But a poison EVENT that never became a document emits no analytics event (visible only in the quarantine store).","gap"],
+  ["Gate closed (capture mode)?","No produce; the kernel still registers the request durably so the transition is accounted; any produce attempt while gated throws by construction."]],
+ plq:[
+  ["Sent — but confirmed?","No — it stays Sent until the real PLQ CIN callback returns; no callback in window escalates to ConfirmGap. There is no 997."],
+  ["A foreign CIN?","Audited durably + alerted (Unmatched); an order/billTo disagreement is a suspect CorroborationMismatch, rows untouched."]],
+ ops:[
+  ["Zoom silently 400s?","Caught — counted and failed over to OpsGenie; the synthetic probe pushes a canary through the real path to detect a silently-dead channel."],
+  ["Both channels down?","CRITICAL 'alert UNDELIVERABLE' + metric — loud, never swallowed; raising an alert never crashes the reporting path."],
+  ["An alert storm?","Fingerprint throttle: one per window + a suppressed count. But the throttle is per-instance in-memory — estate-wide would need a shared store.","gap"],
+  ["The $25k boundary?","Inclusive ≥ — 24,999.99 no, 25,000.00 Critical; the threshold is governed data, no literal in code."]],
+ recon:[
+  ["A and B are different documents?","Per-path VALUE / SHAPE / MISSING / EXTRA diffs; an unparseable payload becomes a synthetic SHAPE_DIFF — never a silent skip."],
+  ["A one-cent money diff?","Never tolerated — money paths are forced Exact and checked before any allowlist. Always a mismatch."],
+  ["99.9% parity but one dropped record?","Refusal — eligibility requires SilentLossCount == 0. Silent loss is the exact thing this gate exists to catch."],
+  ["A failing run mid-streak?","Resets the streak; zero runs is never eligible; expired allowlist entries reclassify back to mismatch. The flip stays a human sign-off."]],
+};
+
+// ---- geometry (world → screen via view transform) ----
+function wpos(id){const n=N[id];return{x:n.nx*WW,y:n.ny*WH}}
+function px(id){const w=wpos(id);return{x:w.x*view.s+view.ox,y:w.y*view.s+view.oy}}
+function nodeBox(id){const p=px(id);return{x:p.x-(NW/2)*view.s,y:p.y-(NH/2)*view.s,w:NW*view.s,h:NH*view.s,cx:p.x,cy:p.y}}
+
+// ---- tokens ----
+let tokens=[],last=0,paused=false,spd=1,t0=performance.now();
+const spawnClock={};
+function spawn(f){
+  tokens.push({f,seg:0,t:0,trail:[]});
+}
+function edgePts(a,b){const A=px(a),B=px(b);return[A,B]}
+
+// ---- interaction ----
+let hover=null,selected=null,dragging=false,moved=false,lastM={x:0,y:0};
+function hitTest(mx,my){for(const id in N){const b=nodeBox(id);if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h)return id}return null}
+cv.addEventListener("mousedown",e=>{const r=cv.getBoundingClientRect();lastM={x:e.clientX-r.left,y:e.clientY-r.top};dragging=true;moved=false});
+window.addEventListener("mouseup",()=>{dragging=false});
+cv.addEventListener("mousemove",e=>{
+  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  if(dragging){const dx=mx-lastM.x,dy=my-lastM.y;if(Math.abs(dx)+Math.abs(dy)>2){moved=true;userAdjusted=true}view.ox+=dx;view.oy+=dy;lastM={x:mx,y:my};cv.style.cursor="grabbing";return}
+  hover=hitTest(mx,my);cv.style.cursor=hover?"pointer":"grab";
+});
+cv.addEventListener("click",()=>{if(moved)return;if(hover){selected=hover;openPanel(hover)}});
+cv.addEventListener("wheel",e=>{e.preventDefault();userAdjusted=true;const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,w=toWorld(mx,my),f=e.deltaY<0?1.12:1/1.12;view.s=Math.max(.34,Math.min(2.8,view.s*f));view.ox=mx-w.x*view.s;view.oy=my-w.y*view.s},{passive:false});
+// touch: 1-finger pan, 2-finger pinch-zoom
+let tPrev=null,tDist=0;
+cv.addEventListener("touchstart",e=>{userAdjusted=true;const r=cv.getBoundingClientRect();if(e.touches.length===1){const t=e.touches[0];tPrev={x:t.clientX-r.left,y:t.clientY-r.top};moved=false;const h=hitTest(tPrev.x,tPrev.y);if(h){selected=h;openPanel(h)}}else if(e.touches.length===2){tDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}},{passive:true});
+cv.addEventListener("touchmove",e=>{e.preventDefault();const r=cv.getBoundingClientRect();
+  if(e.touches.length===1&&tPrev){const t=e.touches[0],x=t.clientX-r.left,y=t.clientY-r.top;view.ox+=x-tPrev.x;view.oy+=y-tPrev.y;tPrev={x,y}}
+  else if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY),mx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left,my=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top,w=toWorld(mx,my),f=d/(tDist||d);view.s=Math.max(.34,Math.min(2.8,view.s*f));view.ox=mx-w.x*view.s;view.oy=my-w.y*view.s;tDist=d}
+},{passive:false});
+cv.addEventListener("touchend",()=>{tPrev=null;tDist=0},{passive:true});
+function openPanel(id){
+  const inf=INFO[id],n=N[id];if(!inf)return;
+  const P=document.getElementById("panel");
+  document.getElementById("pKind").textContent=inf.kind;
+  document.getElementById("pKind").style.color=inf.accent||"#8ea3c1";
+  document.getElementById("pName").textContent=n.label;
+  document.getElementById("pRepo").textContent=inf.repo||"";
+  document.getElementById("pWhat").innerHTML=inf.what;
+  const gw=document.getElementById("pGuardWrap");
+  if(inf.guard){gw.style.display="";document.getElementById("pGuard").innerHTML=inf.guard}else gw.style.display="none";
+  const sw=document.getElementById("pScWrap"),sc=SC[id];
+  if(sc&&sc.length){sw.style.display="";document.getElementById("pSc").innerHTML=sc.map(([q,a,g])=>`<div class="scitem${g?' gap':''}"><span class="q">${q}</span><span class="a">${a}</span></div>`).join("")}else sw.style.display="none";
+  const fw=document.getElementById("pFilesWrap");
+  if(inf.files&&inf.files.length){fw.style.display="";document.getElementById("pFiles").innerHTML=inf.files.map(([p,c])=>`<code style="border-left-color:${inf.accent||'#3aa0ff'}">${p} · <b>${c}</b></code>`).join("")}else fw.style.display="none";
+  // flows through this node
+  const thru=[...new Set(FLOWS.filter(f=>f.path.includes(id)).map(f=>f.id))];
+  const tw=document.getElementById("pThruWrap");
+  if(thru.length){tw.style.display="";document.getElementById("pThru").innerHTML=thru.map(fid=>`<span style="background:${FLOWMETA[fid].c}">${FLOWMETA[fid].label}</span>`).join("")}else tw.style.display="none";
+  P.classList.add("open");
+}
+document.getElementById("pClose").onclick=()=>{document.getElementById("panel").classList.remove("open");selected=null};
+document.getElementById("pause").onclick=e=>{paused=!paused;e.target.textContent=paused?"▶ Play":"⏸ Pause";if(!paused)last=performance.now()};
+document.getElementById("speed").oninput=e=>spd=+e.target.value;
+
+// ---- legend ----
+const LG=document.getElementById("legend");
+Object.entries(FLOWMETA).forEach(([id,m])=>{
+  const row=document.createElement("div");row.className="lrow";row.dataset.f=id;
+  row.innerHTML=`<span class="dot" style="color:${m.c};background:${m.c}"></span><b>${m.label}</b><span class="ct" id="ct-${id}">0</span>`;
+  row.onclick=()=>{flowOff[id]=!flowOff[id];row.classList.toggle("off",flowOff[id])};
+  LG.appendChild(row);
+});
+
+// ---- draw ----
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function drawEdges(){
+  ctx.lineWidth=1.4;
+  for(const [a,b] of E){
+    const A=px(a),B=px(b);
+    const lit=selected&&(a===selected||b===selected)||hover&&(a===hover||b===hover);
+    ctx.strokeStyle=lit?"rgba(120,160,220,.55)":"rgba(120,150,200,.13)";
+    ctx.beginPath();ctx.moveTo(A.x,A.y);
+    const mx=(A.x+B.x)/2;ctx.bezierCurveTo(mx,A.y,mx,B.y,B.x,B.y);ctx.stroke();
+  }
+}
+const pulse={};
+function drawNodes(){
+  for(const id in N){
+    const n=N[id],b=nodeBox(id),k=KIND[n.kind];
+    const isHi=hover===id||selected===id;const pl=pulse[id]||0;
+    if(pl>0){ctx.save();ctx.shadowColor=k.stroke;ctx.shadowBlur=18*pl;}
+    ctx.fillStyle=k.fill;ctx.strokeStyle=isHi?"#fcc005":k.stroke;ctx.lineWidth=isHi?2.2:1.3;
+    rr(b.x,b.y,b.w,b.h,Math.max(5,10*view.s));ctx.fill();ctx.stroke();
+    if(pl>0)ctx.restore();
+    // top accent line for kernel/park/ops
+    ctx.fillStyle=n.kind==="kernel"?"#49cf8c":n.kind==="park"?"#fcc005":n.kind==="ops"?"#ff5d6c":n.kind==="dest"?"#5aa9e6":n.kind==="engine"?"#b48bff":"#3a6ea5";
+    rr(b.x,b.y,b.w,Math.max(2,3*view.s),2);ctx.fill();
+    ctx.fillStyle="#eaf1fb";ctx.font="600 "+Math.max(8.5,Math.min(13,12*view.s)).toFixed(1)+"px "+getComputedStyle(document.body).fontFamily;
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText(n.label,b.cx,b.cy+2);
+    pulse[id]=Math.max(0,pl-.03);
+  }
+}
+function drawTokens(dt){
+  for(let i=tokens.length-1;i>=0;i--){
+    const tk=tokens[i],f=tk.f;
+    if(flowOff[f.id]){tokens.splice(i,1);continue}
+    const a=f.path[tk.seg],b=f.path[tk.seg+1];
+    if(!b){tokens.splice(i,1);continue}
+    const [A,B]=edgePts(a,b);
+    // duration per segment
+    const dur=680;
+    tk.t+=dt/dur*spd;
+    let seg=tk.seg,tt=tk.t;
+    while(tt>=1){tt-=1;seg++;tk.seg=seg;tk.t=tt;
+      if(seg<f.path.length)pulse[f.path[seg]]=1;
+      if(seg>=f.path.length-1){ // arrived at final
+        pulse[f.path[f.path.length-1]]=1;counts[f.id]=(counts[f.id]||0)+1;
+        tokens.splice(i,1);seg=-1;break}
+    }
+    if(seg<0)continue;
+    const A2=px(f.path[seg]),B2=px(f.path[seg+1]);
+    if(!B2){tokens.splice(i,1);continue}
+    const mx=(A2.x+B2.x)/2,e=tk.t;
+    // bezier point
+    const u=1-e;
+    const x=u*u*u*A2.x+3*u*u*e*mx+3*u*e*e*mx+e*e*e*B2.x;
+    const y=u*u*u*A2.y+3*u*u*e*A2.y+3*u*e*e*B2.y+e*e*e*B2.y;
+    tk.trail.unshift({x,y});if(tk.trail.length>7)tk.trail.pop();
+    // trail
+    for(let j=tk.trail.length-1;j>=0;j--){const p=tk.trail[j],al=(1-j/8)*.5;
+      ctx.beginPath();ctx.fillStyle=f.color;ctx.globalAlpha=al;ctx.arc(p.x,p.y,3.2-j*.28,0,7);ctx.fill()}
+    ctx.globalAlpha=1;
+    ctx.save();ctx.shadowColor=f.color;ctx.shadowBlur=12;
+    ctx.beginPath();ctx.fillStyle=f.color;ctx.arc(x,y,4.2,0,7);ctx.fill();ctx.restore();
+    // parking glow when sitting on park node segment
+    if(f.path[seg]==="park"||f.path[seg+1]==="park"){/* amber handled by color for bad; park tokens keep invoice color */}
+  }
+}
+function frame(now){if(!running)return;
+  if(!last)last=now;let dt=now-last;last=now;if(dt>60)dt=60;
+  if(!paused){
+    // spawn
+    for(const f of FLOWS){spawnClock[f.id+f.every]=(spawnClock[f.id+f.every]||0)+dt*spd;
+      if(spawnClock[f.id+f.every]>=f.every){spawnClock[f.id+f.every]=0;if(!flowOff[f.id])spawn(f)}}
+  }
+  ctx.clearRect(0,0,W,H);
+  // subtle bg grid glow
+  drawEdges();
+  if(!paused)drawTokens(dt); else drawTokens(0);
+  drawNodes();
+  for(const id in FLOWMETA){const el=document.getElementById("ct-"+id);if(el)el.textContent=(counts[id]||0)}
+  rafId=requestAnimationFrame(frame);
+}
+document.getElementById("fit").onclick=()=>{userAdjusted=false;fitView()};
+resize();
+// seed a few tokens immediately so the map is alive on load
+for(let k=0;k<9;k++){const f=FLOWS[k%FLOWS.length];const tk={f,seg:Math.floor(Math.random()*Math.max(1,f.path.length-2)),t:Math.random(),trail:[]};tokens.push(tk)}
+
+window.__views=window.__views||{};window.__views.live={onShow:function(){resize();if(!running){running=true;last=0;rafId=requestAnimationFrame(frame);}},onHide:function(){running=false;if(rafId)cancelAnimationFrame(rafId);rafId=null;}};
+})();
+</script>
+<script>/* FLOW ATLAS · data */
+(function(){
+
+window.__INFO={
+ feeds:{kind:"Customer feed",repo:"finance-mm-receivables · Customers/Ccsf",accent:"#5aa9e6",what:"CCSF customer-master events are normalized (SR header stripped) and projected into a billTo-keyed cache the AR vertical owns; the pipeline hydrates customer name / bill-to / EDI-enabled / parent from it. Parent = the CCSF org with type=='cm'.",guard:"Fail-closed on a bad key; a durable cache (no synchronous customer-service call per invoice)."},
+ ingress:{kind:"Ingress",repo:"MmIngress / Ingest",accent:"#3a6ea5",what:"Every source event is decoded, de-duplicated against the idempotency ledger, and canonicalized. Offsets commit only after the produce ack (at-least-once).",guard:"Conservation starts here — every event lands in exactly one bucket."},
+ gate:{kind:"Incident gate",repo:"Incidents/Validation",accent:"#ff5d6c",what:"Source-data validators run before the record enters the pipeline; a defect opens a delivered MasterMind incident and parks the record.",guard:"<b>Deliver-or-die</b> — bad data can't flow in silently; the incident is really POSTed (the DummyAccessor is gone)."},
+ join:{kind:"The 308k fix",repo:"finance-mm-receivables",accent:"#3aa0ff",what:"The invoice is joined to its load-financial event for carrier/routes/miles; whoever arrives second does the merge.",guard:"A missing CarrierCode parks Blocked here with a named reason — never reaches the BRE. Killed 308,172 failures/day."},
+ apply:{kind:"Payments",repo:"finance-mm-receivables",accent:"#fcc005",what:"Payments apply to their invoice with currency and non-positive guards; unmatched payments park; MM replies match by finEventID.",guard:"Never DLQ a miss — foreign replies are parked/audited, not lost (the 82.7% fix)."},
+ park:{kind:"Holding · never dropped",repo:"correlation-wait store",accent:"#fcc005",what:"The waiting room — invoices awaiting a load, payments awaiting an invoice, replies awaiting a callback, all held with full payload and re-driven when their partner arrives.",guard:"A store, not a DLQ; an age alert fires before any TTL. Nothing silently dropped."},
+ allocate:{kind:"Rating",repo:"→ bre-allocations",accent:"#7bd0ff",what:"Each route gets a Workday division/region; every rate line is split across routes; a hard post-condition verifies Σ splits = total.",guard:"<b>Conservation</b> — Σ allocated must equal the total or it throws (500); never a silently-wrong split."},
+ vhyd:{kind:"Voucher hydrate",repo:"finance-mm-payables",accent:"#49cf8c",what:"The voucher's checkpointed hydration: currency, routes, cost lines, BRE splits, spend/cost gates, the payment gate, legal entity, and the in-process Workday vendor create.",guard:"Every governed gate fails closed with no approved version; sub-steps checkpoint so a failure replays, not re-runs."},
+ engines:{kind:"Rules engines · governed",repo:"bre-allocations · app-bre-pricing · app-bre-edi",accent:"#b48bff",what:"Three governed BRE apps: allocation (revenue split), pricing (buy/sell ladder, 7 sets), EDI routing (BTC + TMS). Rules are versioned data, not code, edited through Draft→Approve→Active with author≠approver.",guard:"Rules are governed data — UI-editable, approved, effective-dated, fail-closed on a miss."},
+ edigen:{kind:"EDI-210",repo:"finance-mm-receivables",accent:"#3aa0ff",what:"Generates the outbound 210 from governed edi-billing/SCAC lookups, renders the XML, validates it against the authoritative PLQ XSD before send.",guard:"XSD gate — a malformed 210 is blocked, not sent; Sent ≠ Confirmed until the real PLQ CIN callback."},
+ kernel:{kind:"Delivery kernel · copy-and-own",repo:"finance-platform template + each vertical's copy",accent:"#49cf8c",what:"NOT a central service — a copy-and-own reference. The platform holds the blessed source; each vertical runs its OWN instance for its OWN destinations. A conformance test-pack keeps the copies honest.",guard:"<b>Register-before-send · Sent≠Confirmed · park-never-lose · conservation.</b>"},
+ ops:{kind:"Ops spine",repo:"finance-platform",accent:"#ff5d6c",what:"Incidents (deliver-or-die to MM, dedup, resolve) and the AlertRouter (Zoom+OpsGenie, synthetic delivery-probe, storm throttle, governed $25k threshold).",guard:"A silently-400ing Zoom can't lose an alert — the probe verifies real delivery and fails over."},
+ workday:{kind:"Destination · ERP",repo:"platform · Workday adapter",accent:"#5aa9e6",what:"Invoices + AP + supplier creates post to Workday as bsvc SOAP XML with the W1 idempotency triple; confirms only on a real bsvc response.",guard:"Gated OFF by default — capture mode parks every send until SendEnabled is flipped."},
+ plq:{kind:"Destination · EDI partner",repo:"finance-mm-receivables",accent:"#3aa0ff",what:"The EDI-210 goes to PartnerLinQ and stays Sent until the CIN callback {orderNumber,invoiceNumber,billToCode} returns — the real confirmation (no 997). The CIN drives rebills.",guard:"No-ack-in-window → ConfirmGap; a foreign CIN is audited. Sent is never assumed delivered."},
+ esker:{kind:"Destination · SFTP",repo:"platform · Esker adapter",accent:"#49cf8c",what:"OpenAR / OutsidePayment CSVs over SFTP — the incumbent's exact columns, plus a formula-injection guard and fail-closed host-key verification. Replaces the Synapse pipelines.",guard:"A blank host-key fingerprint refuses to send; hostile CSV cells are neutralized."},
+ kafka:{kind:"Destination · analytics",repo:"platform · Kafka adapter",accent:"#22c7dd",what:"Every invoice state change becomes a canonical analytics event keyed by business document id (not a random GUID), Kafka → Snowflake. Replaces Synapse Link.",guard:"The legacy silent-reject-drop is impossible — rejects are events, not vanished rows."},
+ recon:{kind:"Cutover gate",repo:"finance-recon",accent:"#f0a83c",what:"Compares real incumbent output (A) vs V2 capture (B) field-by-field under per-flow policies; accumulates parity and decides — per flow — whether it's safe to cut over.",guard:"Eligible only after N clean runs with zero silent loss. The flip stays human."},
+ mmInv:{kind:"Source · MasterMind",repo:"Kafka topic",accent:"#5aa9e6",what:"A customer-invoice event — charges + an order number, but NO carrier/routes/miles (those arrive on the load-financial event).",guard:""},
+ mmLoad:{kind:"Source · MasterMind",repo:"topic …-loadfin-01",accent:"#5aa9e6",what:"The load-financial event — carrier, routes, miles. Upserted to ILoadFinancialStore keyed by orderNumber whether or not an invoice exists yet.",guard:""},
+ mmVou:{kind:"Source · MasterMind",repo:"finance-mm-payables",accent:"#5aa9e6",what:"A carrier-voucher event — the AP unit; drives the voucher lifecycle to Workday AP.",guard:""},
+ mmPay:{kind:"Source · MasterMind",repo:"finance-mm-receivables",accent:"#5aa9e6",what:"A payment, or MM's reply to a payment we posted (matched by finEventID).",guard:""},
+ cHealth:{kind:"Observability · home",repo:"finance-console",accent:"#5aa9e6",what:"Per-service liveness/readiness and deployment state for every app in the fleet — the console's landing page.",guard:""},
+ cCons:{kind:"Observability",repo:"finance-console",accent:"#49cf8c",what:"The conservation ledger across flows — proves in = out + parked + quarantined + deduped, so a silent gap is visible fleet-wide.",guard:""},
+ cFail:{kind:"Observability",repo:"finance-console",accent:"#ff5d6c",what:"Everything parked / quarantined / dead-lettered across the fleet, with reasons — the operator's failure queue.",guard:""},
+ cParity:{kind:"Observability",repo:"finance-console",accent:"#f0a83c",what:"The recon parity scorecards per flow — how close V2's capture is to the real incumbent output.",guard:""},
+ cCutover:{kind:"Control plane",repo:"finance-console",accent:"#f0a83c",what:"The per-flow cutover gate and the human flip — a flow becomes eligible only after N clean runs with zero silent loss.",guard:""},
+ cTrace:{kind:"Observability",repo:"finance-console",accent:"#5aa9e6",what:"Follow one document or correlation id across every stage it touched — the end-to-end trace.",guard:""},
+ cInsights:{kind:"Observability",repo:"finance-console",accent:"#b48bff",what:"Business insight — dollar throughput, volumes, and rates by flow.",guard:""},
+ cAudit:{kind:"Control plane",repo:"finance-console",accent:"#5aa9e6",what:"Who did what — approvals, replays, and cutover flips, audited.",guard:""},
+ cFlags:{kind:"Control plane",repo:"finance-console",accent:"#ff5d6c",what:"The feature flags / send gates (per-destination SendEnabled). Standing rule: processTransformedInO2C stays OFF in prod forever.",guard:""},
+};
+
+})();
+</script>
+<script>/* FLOW ATLAS · scenarios data */
+(function(){
+
+window.__SC={
+ mmLoad:[["Arrives before its invoice?","Fine — upserted to ILoadFinancialStore keyed by orderNumber and waits there; the invoice joins it on arrival. An order-independent rendezvous, not a one-way wait."]],
+ feeds:[["Customer not in cache on hydrate (MISS)?","Fail-closed — parks Block('missing-customer'), auto-resumes when the customer arrives. No default customer is ever fabricated."],["The cache on restart?","Durable — Cosmos container customer-cache, PK /customerCode, NO TTL. The in-memory impl is tests-only."],["Out-of-order CCSF events?","Offset guard: an older offset is StaleIgnored (never overwrites newer); a cross-partition token → poison → DLQ."],["A malformed event?","The normalizer poisons it (map/validate); a blank billToCode → DLQ. No partial upsert."]],
+ ingress:[["Duplicate / redelivered event?","The eventId hashes the version-stripped stream, so redelivery — even across a v2→v3 cutover — dedups. Offset commits only after the produce ack."],["Malformed / truncated payload?","PoisonMessageException (decode/json/gunzip); raw bytes → per-flow DLQ with reason headers; the lane continues, never silent."],["Wrong SR / binary Avro header?","Magic+schema-id stripped and recorded; if the rest isn't JSON it's poisoned to the DLQ, not guessed."],["Every event accounted for?","Each → exactly one of {canonical, DLQ}; the pipeline ledger lands it in progressed/blocked/suppressed/quarantined/waiting/deduped."]],
+ gate:[["A bad record?","Deliver-or-die incident to MM + park SourceDataQualityBlocked (full payload, replayable)."],["The same bad record twice?","Atomic Cosmos claim (create→409): exactly one POST; the rest ++occurrenceCount."],["The incident POST fails / times out?","Throws, releases the claim so a retry redelivers, and propagates loud — no synthetic success."],["A corrected re-feed?","The MM incident is closed; the idempotency ledger stops a redelivery reopening it."],["POST ok but the MM-id never persisted?","Resolve is skipped with a 'needs manual reconciliation' warning; stays Open — human-dependent.","gap"]],
+ join:[["Invoice arrives first?","No load yet → parks in correlation-wait order:{orderNumber} (Waiting), Blocked(awaiting-load-financial)."],["LOAD arrives first?","ProcessLoadFinancialEventAsync upserts a record keyed by orderNumber, then RematchParkedInvoicesForOrderAsync resumes any parked invoice. An invoice arriving with the load present merges immediately — order-independent."],["Neither / never arrives?","The sweeper age-alerts at 24h and escalates the aged wait to quarantine WITH full payload before the 30d TTL (LoadFinancial container is 90d). Never TTL-into-loss."],["A duplicate load event?","The upsert (Id=orderNumber) is idempotent — but loads aren't eventId-deduped, so a redelivery re-counts In()/Progressed(). State stays correct; conservation counts inflate.","gap"],["Missing CarrierCode?","Parks Blocked('missing-CarrierCode') right here — never reaches the BRE. The 308k/day fix."]],
+ apply:[["Payment before its invoice exists?","Parks in correlation-wait (the 1.56M black-hole fix), applies when the invoice reaches Emitted — or mints an on-account invoice if a governed rule authorizes it."],["Zero / negative amount?","Quarantined ('non-positive-payment-amount'); never applied. Credits exist only as guarded reversals."],["A reply matching nothing (foreign)?","Parked, then the sweep writes the full envelope to a durable foreign-reply audit — never a DLQ."],["A redelivered / contradicting reply?","A terminal callback (Confirmed/ReplyError) dedups — no overwrite, no flip."],["On-account: parent / customer name?","OnAccountInvoiceFactory carries only the payment's customer CODE — it doesn't read the CCSF cache, so parent/name/billTo are absent on the absorbed doc.","gap"]],
+ park:[["What re-drives a parked item?","Four paths: invoice→Emitted (payments), load arrival (invoices), callback register (early replies), invoice arrival (early cancels)."],["The partner never comes?","Age-alerts at 24h (order/payment → quarantine w/ payload); replies age to ForeignReplyIgnored; MM callbacks age to AwaitingCallbackStale at 48h — never a silent TTL loss."],["Crash / restart while parked?","Durable — parked items live in the Cosmos correlation-wait container; sweeps re-drive after restart."],["A store or a queue?","A store (Cosmos, 30d TTL) with an age alert before the TTL — explicitly not a DLQ. One poison entry can't abort a sweep tick."]],
+ edigen:[["A charge with no governed EDI code?","Parks (ParkedAtGeneration) fail-closed + Critical alert; nothing emitted."],["An XSD-invalid render?","Blocked by the XSD validator + Critical alert, not sent."],["Sent, but no CIN callback in window?","The sweep flips Sent→ConfirmGap ('no-cin-in-window') + review alert. Sent ≠ Confirmed."],["A foreign CIN?","Recorded to the durable foreign-audit + alert (Unmatched); an order/billTo disagreement is a suspect CorroborationMismatch."]],
+ allocate:[["Σ splits ≠ total?","Two layers: the engine force-distributes any sub-cent delta by miles, then Verify asserts EXACT decimal equality or throws (500). A partial split never returns 200."],["A remainder with no route to absorb it?","Honest failure — '$X could not be allocated — order has no routes'."],["A division-conditioned priority rule?","Fixed — the Division key is now injected into the priority context; omitting it silently killed those rules (fell to the Percentage default). Caught live (Case B)."],["No covering version as-of the date?","Not handled in the evaluator — as-of resolution lives upstream of these files.","gap"]],
+ vhyd:[["Duplicate / redelivered voucher?","Deduped only at a SETTLED state with the EventId applied; a redelivery of an in-flight event re-drives, not rejects (no silent loss)."],["A failure mid-hydration?","Replays from checkpoints, not a full re-run; EventIds marked applied only at the settled state, so a mid-flight failure stays replayable."],["Carrier has no supplier / missing TIN?","No supplier → VendorPending (create in-process); missing TIN → hard typed failure (VendorFailed), never the silent USA-EIN default."],["invalid-legal-entity check?","Fires only when a present legalEntity isn't in the governed set — but it's DORMANT at raw ingress (legal entity is null on the wire; no-ops on an empty set). Unit-proven, not live.","gap"]],
+ engines:[["Pricing: rates missing / stale?","Fail-closed typed — Missing/MissingCaptureTimestamp/Stale (>60 min). A cached-yesterday rate is never served as fresh."],["Pricing: one of the 7 sets has no version?","The whole evaluation fails closed (422) listing the gaps — never runs on a partial rule estate."],["Pricing: a ladder with sell < buy?","PricingInvariants.Verify throws (500); the margin-floor/ordering invariants reject it."],["EDI routing: no rule matches?","A valid 200 'no match', not an error — most-specific match, older id wins."]],
+ kernel:[["Crash between register and send?","Register-before-send leaves a visible Registered row; the sweep parks aged Registered as 'register-stalled' — nothing transported, replay-safe."],["16 concurrent duplicate requests?","Exactly ONE sends — the ETag claim wins; the other 15 are Deduped."],["Stale-ETag write against a Confirmed record?","Refused at the STORE (hard-terminal never flips), not just in kernel code."],["Retries exhausted?","Parks (FailedParked) with full payload + alert, replayable — never a DLQ, never a rethrow."],["Ack matching nothing / late ack?","No-match → durable foreign-ack audit; a real late ack still confirms a SentUnconfirmed."],["A correction supersedes a parked v1?","Direction-safe — only siblings registered strictly before the anchor are Superseded; a supersede racing a live send audits the wire outcome (CRITICAL)."]],
+ ops:[["Zoom silently 400s?","Caught — counted, failed over to OpsGenie; a synthetic canary probe detects a silently-dead channel."],["Both channels down?","CRITICAL 'alert UNDELIVERABLE' + metric — loud; raising an alert never crashes the reporting path."],["An alert storm?","Fingerprint throttle: one per window + suppressed count. But it's per-instance in-memory — estate-wide needs a shared store.","gap"],["The $25k boundary?","Inclusive ≥ — 24,999.99 no, 25,000.00 Critical; the threshold is governed data, no literal."]],
+ workday:[["SendEnabled = false (gated)?","Transport returns transient → kernel parks with full payload; capture-mode default. Never fake-confirms."],["A 2xx with a Fault / proxy splash?","Not confirmed — requires the real WWS response root; Validation_Fault → quarantine; W1 'cannot be resubmitted' → transient."]],
+ esker:[["A blank SFTP host-key fingerprint?","Fail-closed — refuses to send (the incumbent trusted anything). A live mismatch pages a human."],["A formula-injection CSV cell?","Neutralized — a leading = + - @ TAB CR is prefixed with ' (plain numbers exempt)."]],
+ kafka:[["Key = business id or GUID?","The business documentId — every event for one entity on one partition, ordered."],["A blocked / quarantined doc?","Still emitted as a state event with its reason. But a poison EVENT that never became a document emits no analytics event (visible only in the quarantine store).","gap"],["Gate closed (capture mode)?","No produce; the kernel still registers the request durably; any produce attempt while gated throws."]],
+ plq:[["Sent — but confirmed?","No — stays Sent until the real PLQ CIN callback; no callback in window → ConfirmGap. There is no 997."],["A foreign CIN?","Audited durably + alerted (Unmatched); an order/billTo disagreement is a suspect CorroborationMismatch."]],
+ recon:[["A and B are different documents?","Per-path VALUE/SHAPE/MISSING/EXTRA diffs; an unparseable payload → synthetic SHAPE_DIFF, never a silent skip."],["A one-cent money diff?","Never tolerated — money paths are forced Exact, checked before any allowlist. Always a mismatch."],["99.9% parity but one dropped record?","Refusal — eligibility requires SilentLossCount == 0."],["A failing run mid-streak?","Resets the streak; zero runs is never eligible; the flip stays a human sign-off."]],
+ mmInv:[["What does it carry?","Charges + order number only — carrier/routes/miles come separately on the load-financial event."]],
+ mmVou:[["What is it?","A carrier voucher — the AP unit; drives the voucher lifecycle to Workday AP."]],
+ mmPay:[["Payment or reply?","Both — a payment applies to an invoice; a reply confirms a payment write-back, matched by finEventID."]],
+};
+
+})();
+</script>
+<script>/* FLOW ATLAS · main */
+(function(){
+
+const KC={source:"#5aa9e6",stage:"#3a6ea5",ops:"#ff5d6c",park:"#fcc005",engine:"#b48bff",kernel:"#49cf8c",dest:"#5aa9e6",gate:"#c9a0ff"};
+const NM={
+ mmInv:["MM Invoice","source"],mmLoad:["MM Load-Financial","source"],mmVou:["MM Voucher","source"],mmPay:["MM Payment / Reply","source"],feeds:["CCSF customer feed","source"],
+ ingress:["Ingress · normalize","stage"],gate:["Incident gate","ops"],join:["Join ↔ load-fin","stage"],apply:["Payment apply","stage"],park:["Park · correlation-wait","park"],
+ allocate:["Allocate (BRE)","stage"],vhyd:["Voucher hydrate","stage"],engines:["Rules engines","engine"],edigen:["EDI-210 · XSD","stage"],kernel:["Delivery kernel","kernel"],ops:["Incidents · Alerts","ops"],
+ workday:["Workday","dest"],plq:["PartnerLinQ","dest"],esker:["Esker SFTP","dest"],kafka:["Kafka → Snowflake","dest"],recon:["Recon · cutover gate","gate"],
+ cHealth:["Domain health","stage"],cCons:["Conservation ledger","stage"],cFail:["Failures / parked","ops"],cParity:["Parity","gate"],cCutover:["Cutover control","gate"],cTrace:["Trace lookup","stage"],cInsights:["Business insights","engine"],cAudit:["Action audit","stage"],cFlags:["Feature flags / gates","ops"],
+};
+// INFO + SC reused verbatim from the live map (grounded in real code)
+const INFO=window.__INFO||{};const SC=window.__SC||{};
+
+
+const INFO2=window.__INFO,SC2=window.__SC;
+const FLOWS=[
+ {id:"invoice",t:"Customer invoice",c:"#3aa0ff",d:"MasterMind invoice → joined, rated, EDI-210, delivered to PLQ. The AR spine.",path:["mmInv","ingress","gate","join","allocate","edigen","kernel","plq"]},
+ {id:"loadfin",t:"Load-financial join",c:"#7bd0ff",d:"The rendezvous that supplies carrier/routes/miles — order-independent with the invoice.",path:["mmLoad","ingress","join","park"]},
+ {id:"payment",t:"Payment & reply loop",c:"#fcc005",d:"Apply a payment, write back to MM, match the reply by finEventID.",path:["mmPay","ingress","apply","kernel"]},
+ {id:"onaccount",t:"On-account (unmatched cash)",c:"#fcc005",d:"A payment with no invoice mints a deterministic artificial invoice that absorbs the cash.",path:["mmPay","ingress","apply"]},
+ {id:"edi210",t:"EDI-210 → PLQ",c:"#3aa0ff",d:"Generate the 210 from governed codes, XSD-gate it, deliver, confirm on the real CIN callback.",path:["allocate","edigen","kernel","plq"]},
+ {id:"voucher",t:"Carrier voucher (AP)",c:"#49cf8c",d:"MasterMind voucher → validated, hydrated, vendor resolved in-process, posted to Workday AP.",path:["mmVou","ingress","gate","vhyd","kernel","workday"]},
+ {id:"cancel",t:"Cancellation / reversal",c:"#49cf8c",d:"A credit-memo classified once, frozen, and either a negated reversal or a governed skip.",path:["mmVou","ingress","vhyd","kernel","workday"]},
+ {id:"analytics",t:"Analytics feed (Snowflake)",c:"#22c7dd",d:"Every state change → canonical event → Kafka (business-id key) → Snowflake.",path:["ingress","kernel","kafka"]},
+ {id:"incident",t:"Data-quality incident",c:"#ff5d6c",d:"Bad source data → a delivered MasterMind incident and a parked record.",path:["ingress","gate","ops"]},
+ {id:"customer",t:"Customer feed (CCSF)",c:"#5aa9e6",d:"CCSF customer-master events keep the billTo-keyed cache the pipeline hydrates from.",path:["feeds","ingress","join"]},
+ {id:"alloc",t:"Revenue allocation (BRE)",c:"#b48bff",d:"Split every rate line across routes so Σ = total; a governed, versioned engine.",path:["allocate","engines"]},
+ {id:"pricing",t:"Freight pricing (BRE)",c:"#b48bff",d:"7 governed rule sets + market rates → a buy/sell ladder; fails closed on stale.",path:["engines"]},
+ {id:"recon",t:"Parity / cutover",c:"#f0a83c",d:"Diff real output vs V2 capture; refuse cutover on any silent loss.",path:["recon"]},
+];
+const APPS=[
+ {id:"rcv",name:"finance-mm-receivables",c:"#3aa0ff",repo:"feat/cert-w2-receivables",tests:"874",live:"",blurb:"AR — the customer-invoice vertical: ingest → incident gate → load-financial join → hydrate (customer cache) → allocate → EDI-210 → deliver, with the payment & analytics loops.",path:["mmInv","ingress","gate","join","feeds","allocate","edigen","apply","kernel","park"]},
+ {id:"pay",name:"finance-mm-payables",c:"#49cf8c",repo:"feat/cert-w2-payables",tests:"516",live:"",blurb:"AP — the carrier-voucher vertical: ingest → validators → checkpointed hydrate (governed gates + in-process vendor create) → Workday AP, plus cancellations.",path:["mmVou","ingress","gate","vhyd","kernel","workday"]},
+ {id:"plat",name:"finance-platform",c:"#49cf8c",repo:"feat/cert-w2-platform",tests:"603",live:"",blurb:"The shared discipline — the delivery kernel + 4 adapters, incidents, AlertRouter, governance — all copy-and-own reference templates each app runs its own copy of.",path:["kernel","workday","plq","esker","kafka","ops"]},
+ {id:"alloc",name:"bre-allocations",c:"#b48bff",repo:"feat/cert-w2-allocations",tests:"491",live:"live · QA Cosmos",blurb:"Revenue/cost allocation — governed decision tables + reference tables + versioning; Σ splits = total enforced as a hard post-condition.",path:["allocate","engines"]},
+ {id:"price",name:"app-bre-pricing",c:"#b48bff",repo:"main",tests:"396",live:"live · :5097",blurb:"Freight pricing — 7 independently-versioned rule sets, invariant-checked buy/sell ladder, market rates behind a fail-closed seam; full rule view/edit UX.",path:["engines"]},
+ {id:"edi",name:"app-bre-edi",c:"#b48bff",repo:"main",tests:"—",live:"",blurb:"EDI-210 routing — most-specific match over ~1,421 rules → BTC + TMS. The older sibling (no approval workflow yet).",path:["engines"]},
+ {id:"recon",name:"finance-recon",c:"#f0a83c",repo:"feat/cert-w2-recon",tests:"89",live:"",blurb:"The cutover gate — A-vs-B diff, parity ledger, zero-silent-loss eligibility rule.",path:["recon"]},
+ {id:"console",name:"finance-console",c:"#5aa9e6",repo:"main",tests:"—",live:"live · :5098 (mock data)",blurb:"The read-only observability + control plane over the whole fleet — domain health, the conservation ledger, the failures/parked queue, parity, cutover control, a document trace lookup, business insights, action audit, and feature flags / send-gates. NOTE: its data providers are still MOCK/stubbed — not yet wired to real Cosmos/streams.",path:["cHealth","cCons","cFail","cParity","cCutover","cTrace","cInsights","cAudit","cFlags"]},
+];
+
+let mode="flow",sel=FLOWS[0].id;
+const rail=document.getElementById("rail"),main=document.getElementById("main"),headnote=document.getElementById("headnote");
+function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+
+document.querySelectorAll(".tab[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===b));sel=(mode==="flow"?FLOWS:APPS)[0].id;render()});
+
+function render(){
+  headnote.textContent = mode==="flow"
+   ? "Pick a flow. Each is drawn source→destination and animated, with every stage's what-happens, guarantee, code, and grounded what-ifs (arrival order, duplicates, misses, restart, failures) — gaps flagged."
+   : "Pick an app. Each shows its internal flow and the stages it owns, with the same in-depth per-stage scenarios.";
+  const list = mode==="flow"?FLOWS:APPS;
+  rail.innerHTML="";rail.appendChild(el("div","railh",mode==="flow"?"Flows":"Apps"));
+  list.forEach(x=>{
+    const r=el("div","ri"+(x.id===sel?" on":""));
+    r.innerHTML=`<span class="dot" style="color:${x.c};background:${x.c}"></span><span>${x.t||x.name.replace(/^(app-|finance-mm-|finance-|bre-)/,"")}</span>${x.tests&&x.tests!=="—"?`<span class="rt">${x.tests}</span>`:""}`;
+    r.onclick=()=>{sel=x.id;render()};rail.appendChild(r);
+  });
+  const it=list.find(x=>x.id===sel);
+  main.innerHTML="";
+  const mh=el("div","mh");
+  if(mode==="flow"){mh.innerHTML=`<h1>${it.t}</h1><span class="mrepo">${it.path.length} stages</span>`;}
+  else{mh.innerHTML=`<h1>${it.name}</h1><div class="mt"><span class="chip">${it.repo}</span>${it.tests!=="—"?`<span class="chip tests">${it.tests} tests</span>`:""}${it.live?`<span class="chip live">${it.live}</span>`:""}</div>`;}
+  main.appendChild(mh);
+  main.appendChild(el("div","mdesc",it.blurb||it.d));
+  // strip canvas
+  const sw=el("div","stripwrap");const cvs=el("canvas");sw.appendChild(cvs);main.appendChild(sw);
+  startStrip(cvs,it.path,it.c||"#3aa0ff");
+  // stage cards
+  it.path.forEach((nid,ix)=>{
+    const inf=INFO2[nid]||{},sc=SC2[nid]||[],nm=NM[nid]||[nid,"stage"];
+    const st=el("details","stage");st.id="st-"+nid;st.open=(mode==="flow");
+    const acc=inf.accent||KC[nm[1]]||"#3a6ea5";
+    const files=(inf.files||[]).map(([p,c])=>`<code style="border-left-color:${acc}">${p} · <b>${c}</b></code>`).join("");
+    const scH=sc.map(([q,a,g])=>`<div class="scitem${g?" gap":""}"><span class="q">${q}</span><span class="a">${a}</span></div>`).join("");
+    st.innerHTML=`<summary class="sth"><span class="sn" style="background:${acc}">${ix+1}</span><h3>${nm[0]}</h3><span class="sk">${inf.kind||nm[1]}</span></summary>
+      <div class="stb">
+        ${inf.what?`<div><div class="lab">What happens</div><div class="what">${inf.what}</div></div>`:""}
+        ${inf.guard?`<div><div class="lab">Guarantee</div><div class="guard">${inf.guard}</div></div>`:""}
+        ${files?`<div><div class="lab">Code</div><div class="files">${files}</div></div>`:""}
+        ${scH?`<div><div class="lab">Scenarios · what-ifs</div><div class="sc">${scH}</div></div>`:""}
+      </div>`;
+    main.appendChild(st);
+  });
+}
+
+// ---- animated strip ----
+let stripReq=null;
+function startStrip(cvs,path,color){
+  if(stripReq)cancelAnimationFrame(stripReq);
+  const ctx=cvs.getContext("2d");let DPR=Math.min(devicePixelRatio||1,2);
+  function size(){cvs.width=cvs.clientWidth*DPR;cvs.height=132*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+  size();addEventListener("resize",size,{once:true});
+  const n=path.length;
+  function pos(i){const W=cvs.clientWidth;const m=Math.min(120,W/(n+1));const x=m+(i)*((W-2*m)/(Math.max(1,n-1)));return{x,y:66}}
+  let toks=[{t:0},{t:-.33},{t:-.66}],last=0;
+  function frame(now){
+    if(!last)last=now;const dt=Math.min(50,now-last);last=now;
+    const W=cvs.clientWidth;ctx.clearRect(0,0,W,132);
+    // edges
+    ctx.strokeStyle="rgba(120,150,200,.25)";ctx.lineWidth=2;
+    for(let i=0;i<n-1;i++){const a=pos(i),b=pos(i+1);ctx.beginPath();ctx.moveTo(a.x+8,a.y);ctx.lineTo(b.x-8,b.y);ctx.stroke();}
+    // nodes
+    for(let i=0;i<n;i++){const p=pos(i),nm=NM[path[i]]||["?","stage"],col=KC[nm[1]]||"#3a6ea5";
+      ctx.beginPath();ctx.arc(p.x,p.y,7,0,7);ctx.fillStyle="#0c1626";ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=2.4;ctx.stroke();
+      ctx.fillStyle="#cfe0f6";ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";
+      const lab=nm[0].length>16?nm[0].slice(0,15)+"…":nm[0];ctx.fillText(lab,p.x, i%2? p.y+26 : p.y-16);}
+    // tokens
+    if(n>1)for(const tk of toks){tk.t+=dt/2600;if(tk.t>1)tk.t-=1.33;const tt=Math.max(0,tk.t);const seg=Math.min(n-2,Math.floor(tt*(n-1)));const f=tt*(n-1)-seg;const a=pos(seg),b=pos(seg+1);const x=a.x+(b.x-a.x)*f,y=a.y;
+      ctx.save();ctx.shadowColor=color;ctx.shadowBlur=12;ctx.beginPath();ctx.fillStyle=color;ctx.arc(x,y,4.5,0,7);ctx.fill();ctx.restore();}
+    stripReq=requestAnimationFrame(frame);
+  }
+  stripReq=requestAnimationFrame(frame);
+}
+
+window.__views=window.__views||{};window.__views.atlas={onShow:function(){render();},onHide:function(){if(stripReq)cancelAnimationFrame(stripReq);stripReq=null;}};
+})();
+</script>
+<script>/* SHELL controller — the descent */
+(function(){
+  window.__views=window.__views||{};
+  var order=['domain','live','atlas'];
+  var current='domain';
+  var alts=document.querySelectorAll('#altnav [data-view]');
+  var flash=document.getElementById('flash');
+  function paintNav(name){
+    var ci=order.indexOf(name);
+    alts.forEach(function(b){
+      var i=order.indexOf(b.getAttribute('data-view'));
+      b.classList.toggle('on',i===ci);
+      b.classList.toggle('done',i<ci);
+    });
+  }
+  function switchTo(name){
+    if(name===current||order.indexOf(name)<0)return;
+    var ov=window.__views[current]; if(ov&&ov.onHide)ov.onHide();
+    document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
+    var target=document.getElementById('view-'+name); if(target)target.classList.add('active');
+    paintNav(name);
+    flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+    current=name;
+    window.scrollTo(0,0);
+    var nv=window.__views[name]; if(nv&&nv.onShow)nv.onShow();
+  }
+  window.__switchTo=switchTo;
+  alts.forEach(function(b){b.addEventListener('click',function(){switchTo(b.getAttribute('data-view'));});});
+  document.querySelectorAll('[data-goto]').forEach(function(b){
+    b.addEventListener('click',function(e){e.preventDefault();switchTo(b.getAttribute('data-goto'));});
+  });
+
+  /* cover / hero */
+  var cover=document.getElementById('cover'), ambRun=true;
+  function enter(name){ if(name)switchTo(name); cover.classList.add('gone'); setTimeout(function(){ambRun=false;},800); }
+  document.getElementById('enter').addEventListener('click',function(){enter();});
+  document.querySelectorAll('#cover .band').forEach(function(b){
+    b.addEventListener('click',function(){enter(b.getAttribute('data-view'));});
+  });
+
+  /* boot default view so its canvas measures a visible container */
+  if(window.__views.domain&&window.__views.domain.onShow)window.__views.domain.onShow();
+
+  /* ambient starfield on the cover */
+  var cv=document.getElementById('ambient');
+  if(cv){
+    var cx=cv.getContext('2d'),W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),stars=[],t=0;
+    function rs(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);
+      stars=[];var n=Math.round(W*H/13000);for(var i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,z:Math.random(),s:Math.random()*1.5+.25});}
+    window.addEventListener('resize',rs); rs();
+    (function amb(){
+      if(ambRun){
+        t+=0.012; cx.clearRect(0,0,W,H);
+        for(var i=0;i<stars.length;i++){var st=stars[i];
+          var tw=0.5+0.5*Math.sin(t*1.5+st.z*9);
+          var col=st.z>0.8?'252,192,5':'130,160,220';
+          cx.beginPath();cx.fillStyle='rgba('+col+','+(0.05+tw*(0.05+st.z*0.30)).toFixed(3)+')';
+          cx.arc(st.x,st.y,st.s,0,7);cx.fill();}
+      }
+      requestAnimationFrame(amb);
+    })();
+  }
+})();
 </script>
 
 </body></html>
